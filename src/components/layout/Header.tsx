@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import AnnouncementBar from "./AnnouncementBar";
 
 // Danh mục từ tranhtheuhangkhoa.blogspot.com
 const navLinks = [
