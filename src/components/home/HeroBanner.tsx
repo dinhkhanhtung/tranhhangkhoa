@@ -78,27 +78,56 @@ export default function HeroBanner() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-3xl"
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-4xl"
           >
-            <p className="text-sm md:text-base tracking-[0.3em] text-white/80 uppercase mb-4">
-              {slides[currentSlide].subtitle}
-            </p>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-white mb-6 leading-tight">
-              {slides[currentSlide].title}
-            </h1>
-            <p className="text-base md:text-lg text-white/90 mb-8 max-w-xl mx-auto">
-              {slides[currentSlide].description}
-            </p>
-            <Link
-              href={slides[currentSlide].href}
-              className="inline-block bg-white text-[#1c1917] px-8 py-4 text-sm font-medium tracking-wide hover:bg-[#b45309] hover:text-white transition-all duration-300"
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-sm md:text-base tracking-[0.4em] text-white/70 uppercase mb-6 font-light"
             >
-              {slides[currentSlide].cta}
-            </Link>
+              {slides[currentSlide].subtitle}
+            </motion.p>
+            <motion.h1 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-serif text-white mb-8 leading-tight drop-shadow-2xl"
+            >
+              {slides[currentSlide].title}
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="text-base md:text-lg lg:text-xl text-white/80 mb-10 max-w-2xl mx-auto font-light leading-relaxed"
+            >
+              {slides[currentSlide].description}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Link
+                href={slides[currentSlide].href}
+                className="group inline-flex items-center gap-3 bg-white text-[#1c1917] px-10 py-4 text-sm font-semibold tracking-wider hover:bg-[#b45309] hover:text-white transition-all duration-500 rounded-sm shadow-2xl hover:shadow-[#b45309]/30 hover:-translate-y-1"
+              >
+                {slides[currentSlide].cta}
+                <svg 
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -106,27 +135,27 @@ export default function HeroBanner() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 text-white/70 hover:text-white transition-colors"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md text-white/80 hover:bg-white/20 hover:text-white hover:scale-110 transition-all duration-300 border border-white/20"
         aria-label="Previous slide"
       >
-        <ChevronLeft size={32} />
+        <ChevronLeft size={28} />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 text-white/70 hover:text-white transition-colors"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md text-white/80 hover:bg-white/20 hover:text-white hover:scale-110 transition-all duration-300 border border-white/20"
         aria-label="Next slide"
       >
-        <ChevronRight size={32} />
+        <ChevronRight size={28} />
       </button>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-3">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide ? "bg-white w-8" : "bg-white/50 hover:bg-white/80"
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              index === currentSlide ? "bg-white w-10" : "bg-white/40 w-1.5 hover:bg-white/60"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

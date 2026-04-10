@@ -45,11 +45,12 @@ export default function FeaturedCategories() {
           viewport={{ once: true }}
           className="mb-12 text-center"
         >
-          <h2 className="text-2xl md:text-3xl font-serif text-[#1c1917] mb-3">
+          <p className="text-sm tracking-[0.2em] text-[#b45309] uppercase mb-3 font-medium">Khám Phá</p>
+          <h2 className="text-3xl md:text-4xl font-serif text-[#1c1917] mb-4">
             Danh Mục Nổi Bật
           </h2>
-          <p className="text-sm text-[#57534e] max-w-md mx-auto">
-            Khám phá các bộ sưu tập được yêu thích nhất
+          <p className="text-[#57534e] max-w-md mx-auto">
+            Các bộ sưu tập tranh thêu được yêu thích nhất
           </p>
         </motion.div>
 
@@ -65,9 +66,12 @@ export default function FeaturedCategories() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6">
-              <h3 className="text-xl md:text-2xl font-serif text-white mb-2">{categories[0].name}</h3>
-              <span className="inline-block text-sm text-white/80 border-b border-white/40 pb-1 group-hover:border-white transition-colors">
+              <h3 className="text-xl md:text-2xl font-serif text-white mb-2 drop-shadow-lg">{categories[0].name}</h3>
+              <span className="inline-flex items-center gap-2 text-sm text-white/90 border-b border-white/40 pb-1 group-hover:border-white transition-all duration-300">
                 Xem bộ sưu tập
+                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </span>
             </div>
           </Link>
@@ -83,7 +87,7 @@ export default function FeaturedCategories() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="text-base md:text-lg font-serif text-white">{category.name}</h3>
+                <h3 className="text-base md:text-lg font-serif text-white drop-shadow-md">{category.name}</h3>
               </div>
             </Link>
           ))}
@@ -98,9 +102,12 @@ export default function FeaturedCategories() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6">
-              <h3 className="text-xl md:text-2xl font-serif text-white mb-2">{categories[3].name}</h3>
-              <span className="inline-block text-sm text-white/80 border-b border-white/40 pb-1 group-hover:border-white transition-colors">
+              <h3 className="text-xl md:text-2xl font-serif text-white mb-2 drop-shadow-lg">{categories[3].name}</h3>
+              <span className="inline-flex items-center gap-2 text-sm text-white/90 border-b border-white/40 pb-1 group-hover:border-white transition-all duration-300">
                 Đăng ký ngay
+                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </span>
             </div>
           </Link>
