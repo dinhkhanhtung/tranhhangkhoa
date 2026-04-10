@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { 
   Search, Filter, Edit, Save, Percent, DollarSign, TrendingUp,
   Calendar, Package, MoreVertical
 } from "lucide-react";
 
 export default function ProductPricesPage() {
-  const [selectedCategory] = useState<string>("all");
-
   const products = [
     {
       id: "1",
