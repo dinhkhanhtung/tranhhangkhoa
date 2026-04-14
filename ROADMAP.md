@@ -49,7 +49,7 @@
 - [ ] Chọn địa chỉ giao hàng (nhiều địa chỉ)
 - [ ] Mã giảm giá/ưu đãi
 
-#### 1.2 Quản Lý Đơn Hàng ⭐⭐⭐⭐⭐ 🟡
+#### 1.2 Quản Lý Đơn Hàng ⭐⭐⭐⭐⭐ ✅
 **Khách hàng:**
 - [x] Trang "Đơn hàng của tôi" trong tài khoản
 - [x] Theo dõi trạng thái đơn: Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn thành
@@ -58,11 +58,12 @@
 - [ ] Đánh giá sản phẩm sau nhận hàng
 
 **Admin:**
-- [ ] Bảng điều khiển đơn hàng mới (real-time)
-- [ ] Cập nhật trạng thái đơn hàng
+- [x] Bảng điều khiển đơn hàng mới (real-time từ Firebase)
+- [x] Thống kê: Tổng đơn, chờ xử lý, đang giao, doanh thu
+- [x] Xem chi tiết đơn hàng (modal)
+- [x] Cập nhật trạng thái đơn hàng
 - [ ] Lọc đơn hàng theo trạng thái, ngày
 - [ ] In phiếu giao hàng
-- [ ] Thống kê doanh thu (ngày/tuần/tháng)
 
 #### 1.3 Admin Sản Phẩm Hoàn Chỉnh ⭐⭐⭐⭐
 - [ ] Form thêm sản phẩm (UI dễ dùng)
