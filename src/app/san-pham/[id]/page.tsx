@@ -6,7 +6,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Heart, ChevronRight, Star, 
-  ChevronDown, Minus, Plus, CheckCircle2
+  ChevronDown, Minus, Plus, CheckCircle2,
+  Eye, MessageCircle, ShoppingBag, Truck, RefreshCw, Shield
 } from "lucide-react";
 
 interface ProductPageProps {
@@ -46,6 +47,8 @@ const products = [
     ],
     badge: "Bán chạy",
     inStock: true,
+    soldCount: 128,
+    viewers24h: 156,
   },
   {
     id: "2",
@@ -69,6 +72,8 @@ const products = [
     ],
     badge: "Mới",
     inStock: true,
+    soldCount: 89,
+    viewers24h: 67,
   },
 ];
 
@@ -200,18 +205,24 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 <p className="text-sm text-[#b45309] mb-1.5">{product.category}</p>
                 <h1 className="text-2xl lg:text-3xl font-serif text-[#1c1917] mb-3 pr-12">{product.name}</h1>
                 
-                {/* Rating */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={i < product.rating ? "fill-[#b45309] text-[#b45309]" : "text-[#e7e5e4]"}
-                      />
-                    ))}
+                {/* Rating + Sold */}
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <div className="flex items-center gap-1">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={14}
+                          className={i < product.rating ? "fill-[#b45309] text-[#b45309]" : "text-[#e7e5e4]"}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-[#b45309] font-medium">{product.rating}</span>
                   </div>
-                  <span className="text-sm text-[#57534e]">({product.reviewCount} đánh giá)</span>
+                  <span className="text-sm text-[#57534e]">|</span>
+                  <span className="text-sm text-[#57534e]">{product.reviewCount} đánh giá</span>
+                  <span className="text-sm text-[#57534e]">|</span>
+                  <span className="text-sm text-[#57534e]">{product.soldCount || 1} đã bán</span>
                 </div>
 
                 {/* Price */}
@@ -225,6 +236,12 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     </span>
                   )}
                 </div>
+              </div>
+
+              {/* Viewers 24h */}
+              <div className="flex items-center gap-2 text-sm">
+                <Eye size={14} className="text-[#b45309]" />
+                <span className="text-[#b45309] font-medium">{product.viewers24h || 59}+ người xem trong 24h qua</span>
               </div>
 
               <p className="text-[#57534e] leading-relaxed text-sm">{product.description}</p>
@@ -270,37 +287,68 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               )}
 
-              {/* Quantity & Add to Cart */}
+              {/* Quantity & Message */}
               <div className="space-y-3 pt-2">
-                <div className="flex items-center border border-[#e7e5e4] w-full">
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-[#f5f5f4]"
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="flex-1 text-center text-sm">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-[#f5f5f4]"
-                  >
-                    <Plus size={16} />
-                  </button>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-[#57534e] shrink-0">Số lượng</span>
+                  <div className="flex items-center border border-[#e7e5e4]">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-2.5 hover:bg-[#f5f5f4]"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="w-10 text-center text-sm">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-2.5 hover:bg-[#f5f5f4]"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
                 </div>
+                
+                {/* Message Input */}
+                <div className="space-y-2">
+                  <p className="text-sm text-[#57534e]">
+                    <MessageCircle size={14} className="inline mr-1" />
+                    Thêm lời nhắn cho shop
+                  </p>
+                  <input 
+                    type="text" 
+                    placeholder="Ví dụ: Giao giờ hành chính, gọi điện trước khi giao..."
+                    className="w-full px-3 py-2 text-sm border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                  />
+                </div>
+                
+                {/* Add to Cart Button */}
                 <button 
                   onClick={handleAddToCart}
-                  className={`w-full py-4 px-6 font-medium tracking-wide transition-all uppercase text-sm flex items-center justify-center gap-2 ${
-                    isAdded ? "bg-green-600 text-white" : "bg-[#1c1917] text-white hover:bg-[#b45309]"
+                  className={`w-full py-3.5 px-6 font-medium tracking-wide transition-all text-sm flex items-center justify-center gap-2 rounded-lg ${
+                    isAdded ? "bg-green-600 text-white" : "bg-[#b45309] text-white hover:bg-[#92400e]"
                   }`}
                 >
+                  <ShoppingBag size={18} />
                   {isAdded ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
                 </button>
               </div>
 
-              {/* Stock Status */}
-              <div className="flex items-center gap-2 text-sm pt-2">
-                <CheckCircle2 className="text-green-500" size={16} />
-                <span className="text-green-600">Còn hàng - Giao trong 2-3 ngày</span>
+              {/* Shipping & Returns - Horizontal */}
+              <div className="flex flex-wrap items-center gap-2 text-sm pt-2">
+                <div className="flex items-center gap-1.5 text-green-600">
+                  <Truck size={14} />
+                  <span>Giao 2-3 ngày</span>
+                </div>
+                <span className="text-[#e7e5e4]">|</span>
+                <div className="flex items-center gap-1.5 text-[#57534e]">
+                  <RefreshCw size={14} />
+                  <span>Đổi trả 30 ngày</span>
+                </div>
+                <span className="text-[#e7e5e4]">|</span>
+                <div className="flex items-center gap-1.5 text-[#57534e]">
+                  <Shield size={14} />
+                  <span>Hoàn tiền</span>
+                </div>
               </div>
             </div>
           </div>
