@@ -48,12 +48,12 @@
 - [ ] Chọn địa chỉ giao hàng (nhiều địa chỉ)
 - [ ] Mã giảm giá/ưu đãi
 
-#### 1.2 Quản Lý Đơn Hàng ⭐⭐⭐⭐⭐
+#### 1.2 Quản Lý Đơn Hàng ⭐⭐⭐⭐⭐ 🟡
 **Khách hàng:**
-- [ ] Trang "Đơn hàng của tôi" trong tài khoản
-- [ ] Theo dõi trạng thái đơn: Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn thành
+- [x] Trang "Đơn hàng của tôi" trong tài khoản
+- [x] Theo dõi trạng thái đơn: Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn thành
 - [ ] Hủy đơn hàng (trong 2h)
-- [ ] Xem chi tiết đơn hàng (sản phẩm, giá, trạng thái)
+- [ ] Xem chi tiết đơn hàng (sản phẩm, giá, trạng thái) - *cần trang /don-hang/[id]*
 - [ ] Đánh giá sản phẩm sau nhận hàng
 
 **Admin:**
