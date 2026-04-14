@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { Home, ShoppingBag, BookOpen, Search, User } from "lucide-react";
 
 const menuItems = [
@@ -65,23 +64,32 @@ export default function MobileBottomBar() {
                   {item.label}
                 </span>
                 {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-8 h-[2px] bg-[#b45309] rounded-full"
-                  />
+                  <div className="absolute -top-[1px] left-0 right-0 flex justify-center">
+                    <div className="w-8 h-[2px] bg-[#b45309] rounded-full" />
+                  </div>
                 )}
               </Link>
             );
           })}
           
           {/* Account Button */}
-          <Link
-            href="/tai-khoan"
-            className="flex flex-col items-center justify-center flex-1 h-full"
-          >
-            <User size={22} className="text-[#57534e]" />
-            <span className="text-[10px] mt-1 font-medium text-[#57534e]">Tài khoản</span>
-          </Link>
+          {(() => {
+            const isActive = pathname === "/tai-khoan" || pathname?.startsWith("/tai-khoan/");
+            return (
+              <Link
+                href="/tai-khoan"
+                className="flex flex-col items-center justify-center flex-1 h-full relative"
+              >
+                <User size={22} className={`transition-colors ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`} />
+                <span className={`text-[10px] mt-1 font-medium ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>Tài khoản</span>
+                {isActive && (
+                  <div className="absolute -top-[1px] left-0 right-0 flex justify-center">
+                    <div className="w-8 h-[2px] bg-[#b45309] rounded-full" />
+                  </div>
+                )}
+              </Link>
+            );
+          })()}
         </div>
       </nav>
 
