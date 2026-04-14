@@ -1,72 +1,244 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
-  Plus, Search, Filter, MoreHorizontal, Edit2, Trash2, Eye,
-  ShoppingBag, Tag, DollarSign, Package, Star, Image as ImageIcon
+  Plus, Search, Filter, Edit2, Trash2, Eye, X, Upload, Loader2,
+  ShoppingBag, Tag, DollarSign, Package, Star, Image as ImageIcon,
+  ChevronDown, CheckCircle
 } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  price: number;
+  salePrice?: number | null;
+  stock: number;
+  status: "active" | "inactive" | "outofstock";
+  featured: boolean;
+  image?: string;
+  images?: string[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+}
+
+const CATEGORIES = [
+  "Hoa sen", "Chim hạc", "Phong cảnh", "Phong thủy", 
+  "Hoa đào", "Hoa mẫu đơn", "Tùng hạc", "Cá chép", "Rồng phượng", "Khác"
+];
 
 export default function ProductsPage() {
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "outofstock">("all");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState<Partial<Product>>({
+    name: "",
+    category: "",
+    description: "",
+    price: 0,
+    salePrice: null,
+    stock: 0,
+    status: "active",
+    featured: false,
+    image: "",
+  });
 
-  const products = [
-    {
-      id: "PROD-001",
-      name: "Tranh thêu hoa sen",
-      category: "Hoa sen",
-      price: 2500000,
-      salePrice: 2200000,
-      stock: 5,
-      status: "active",
-      featured: true,
-      image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=100&q=80"
-    },
-    {
-      id: "PROD-002",
-      name: "Tranh thêu chim hạc",
-      category: "Chim hạc",
-      price: 3200000,
+  // Fetch products from Firebase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!db) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const productsRef = collection(db, "products");
+        const q = query(productsRef, orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+
+        const productsData: Product[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[];
+
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Upload image to imgbb
+  const uploadImage = async (file: File) => {
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_KEY}`, {
+        method: "POST",
+        body: formData,
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      }
+      throw new Error("Upload failed");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Lỗi upload ảnh. Vui lòng thử lại.");
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const imageUrl = await uploadImage(file);
+    if (imageUrl) {
+      setFormData(prev => ({ ...prev, image: imageUrl }));
+    }
+  };
+
+  // Open modal for new product
+  const openNewProductModal = () => {
+    setEditingProduct(null);
+    setFormData({
+      name: "",
+      category: "",
+      description: "",
+      price: 0,
       salePrice: null,
-      stock: 3,
-      status: "active",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=100&q=80"
-    },
-    {
-      id: "PROD-003",
-      name: "Tranh thêu phong cảnh",
-      category: "Phong cảnh",
-      price: 4500000,
-      salePrice: 3990000,
       stock: 0,
-      status: "outofstock",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1561839561-b13bcfe95249?w=100&q=80"
-    },
-    {
-      id: "PROD-004",
-      name: "Tranh thêu mã đáo thành công",
-      category: "Phong thủy",
-      price: 5500000,
-      salePrice: null,
-      stock: 2,
-      status: "active",
-      featured: true,
-      image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=100&q=80"
-    },
-    {
-      id: "PROD-005",
-      name: "Tranh thêu cá chép hoa sen",
-      category: "Phong thủy",
-      price: 3800000,
-      salePrice: 3500000,
-      stock: 8,
       status: "active",
       featured: false,
-      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=100&q=80"
-    },
-  ];
+      image: "",
+    });
+    setIsModalOpen(true);
+  };
+
+  // Open modal for editing
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({ ...product });
+    setIsModalOpen(true);
+  };
+
+  // Save product (create or update)
+  const saveProduct = async () => {
+    if (!db || !formData.name || !formData.category) {
+      alert("Vui lòng nhập tên và danh mục sản phẩm");
+      return;
+    }
+
+    try {
+      const productData = {
+        ...formData,
+        price: Number(formData.price) || 0,
+        salePrice: formData.salePrice ? Number(formData.salePrice) : null,
+        stock: Number(formData.stock) || 0,
+        updatedAt: serverTimestamp(),
+      };
+
+      if (editingProduct) {
+        // Update
+        const productRef = doc(db, "products", editingProduct.id);
+        await updateDoc(productRef, productData);
+        
+        setProducts(prev => prev.map(p => 
+          p.id === editingProduct.id ? { 
+            ...p, 
+            name: formData.name || p.name,
+            category: formData.category || p.category,
+            description: formData.description,
+            price: Number(formData.price) || 0,
+            salePrice: formData.salePrice ? Number(formData.salePrice) : null,
+            stock: Number(formData.stock) || 0,
+            status: formData.status || p.status,
+            featured: formData.featured || false,
+            image: formData.image,
+          } : p
+        ));
+      } else {
+        // Create
+        const newProductRef = await addDoc(collection(db, "products"), {
+          ...productData,
+          createdAt: serverTimestamp(),
+        });
+        
+        const newProduct: Product = {
+          id: newProductRef.id,
+          name: formData.name || "",
+          category: formData.category || "",
+          description: formData.description,
+          price: Number(formData.price) || 0,
+          salePrice: formData.salePrice ? Number(formData.salePrice) : null,
+          stock: Number(formData.stock) || 0,
+          status: (formData.status as "active" | "inactive" | "outofstock") || "active",
+          featured: formData.featured || false,
+          image: formData.image,
+        };
+        
+        setProducts(prev => [newProduct, ...prev]);
+      }
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving product:", error);
+      alert("Có lỗi xảy ra khi lưu sản phẩm");
+    }
+  };
+
+  // Delete product
+  const deleteProduct = async (productId: string) => {
+    if (!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+    
+    if (!db) return;
+
+    try {
+      await deleteDoc(doc(db, "products", productId));
+      setProducts(prev => prev.filter(p => p.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Có lỗi xảy ra khi xóa sản phẩm");
+    }
+  };
+
+  // Calculate stats
+  const stats = {
+    total: products.length,
+    active: products.filter(p => p.status === "active").length,
+    outofstock: products.filter(p => p.stock === 0).length,
+    featured: products.filter(p => p.featured).length,
+  };
+
+  // Loading placeholder
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 size={32} className="animate-spin text-[#b45309]" />
+      </div>
+    );
+  }
 
   const filteredProducts = filter === "all" 
     ? products 
@@ -102,7 +274,10 @@ export default function ProductsPage() {
           <h1 className="text-xl md:text-2xl font-serif text-[#1c1917]">Sản phẩm</h1>
           <p className="text-sm text-[#57534e] mt-1">Quản lý sản phẩm tranh thêu</p>
         </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#b45309] rounded-lg hover:bg-[#92400e] transition-colors">
+        <button 
+          onClick={openNewProductModal}
+          className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#b45309] rounded-lg hover:bg-[#92400e] transition-colors"
+        >
           <Plus size={16} />
           <span>Thêm sản phẩm</span>
         </button>
@@ -116,7 +291,7 @@ export default function ProductsPage() {
               <Package size={16} className="md:w-5 md:h-5 text-[#b45309]" />
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{products.length}</p>
+              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{stats.total}</p>
               <p className="text-xs md:text-sm text-[#57534e]">Tổng sản phẩm</p>
             </div>
           </div>
@@ -127,7 +302,7 @@ export default function ProductsPage() {
               <ShoppingBag size={16} className="md:w-5 md:h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{products.filter(p => p.status === "active").length}</p>
+              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{stats.active}</p>
               <p className="text-xs md:text-sm text-[#57534e]">Đang bán</p>
             </div>
           </div>
@@ -138,7 +313,7 @@ export default function ProductsPage() {
               <Tag size={16} className="md:w-5 md:h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{products.filter(p => p.stock === 0).length}</p>
+              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{stats.outofstock}</p>
               <p className="text-xs md:text-sm text-[#57534e]">Hết hàng</p>
             </div>
           </div>
@@ -149,7 +324,7 @@ export default function ProductsPage() {
               <Star size={16} className="md:w-5 md:h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{products.filter(p => p.featured).length}</p>
+              <p className="text-lg md:text-2xl font-medium text-[#1c1917]">{stats.featured}</p>
               <p className="text-xs md:text-sm text-[#57534e]">Nổi bật</p>
             </div>
           </div>
@@ -159,9 +334,9 @@ export default function ProductsPage() {
       {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2">
         {[
-          { id: "all", label: "Tất cả", count: products.length },
-          { id: "active", label: "Đang bán", count: products.filter(p => p.status === "active").length },
-          { id: "outofstock", label: "Hết hàng", count: products.filter(p => p.status === "outofstock").length },
+          { id: "all", label: "Tất cả", count: stats.total },
+          { id: "active", label: "Đang bán", count: stats.active },
+          { id: "outofstock", label: "Hết hàng", count: stats.outofstock },
         ].map((f) => (
           <button
             key={f.id}
@@ -271,13 +446,16 @@ export default function ProductsPage() {
                 <td className="py-3 px-4">{getStatusBadge(product.status)}</td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <button className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors">
-                      <Eye size={14} />
-                    </button>
-                    <button className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors">
+                    <button 
+                      onClick={() => openEditModal(product)}
+                      className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors"
+                    >
                       <Edit2 size={14} />
                     </button>
-                    <button className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors text-red-600">
+                    <button 
+                      onClick={() => deleteProduct(product.id)}
+                      className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors text-red-600"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -317,13 +495,16 @@ export default function ProductsPage() {
                 <span className="text-xs text-[#57534e]">Tồn: {product.stock}</span>
               </div>
               <div className="flex gap-1">
-                <button className="p-2 hover:bg-[#e7e5e4] rounded transition-colors">
-                  <Eye size={16} />
-                </button>
-                <button className="p-2 hover:bg-[#e7e5e4] rounded transition-colors">
+                <button 
+                  onClick={() => openEditModal(product)}
+                  className="p-2 hover:bg-[#e7e5e4] rounded transition-colors"
+                >
                   <Edit2 size={16} />
                 </button>
-                <button className="p-2 hover:bg-[#e7e5e4] rounded transition-colors text-red-600">
+                <button 
+                  onClick={() => deleteProduct(product.id)}
+                  className="p-2 hover:bg-[#e7e5e4] rounded transition-colors text-red-600"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -331,6 +512,192 @@ export default function ProductsPage() {
           </div>
         ))}
       </div>
+
+      {/* Product Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-[#e7e5e4] flex items-center justify-between">
+                <h2 className="text-lg font-medium text-[#1c1917]">
+                  {editingProduct ? "Sửa sản phẩm" : "Thêm sản phẩm mới"}
+                </h2>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 hover:bg-[#f5f5f4] rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-[#57534e]" />
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1c1917]">Hình ảnh sản phẩm</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-24 h-24 bg-[#f5f5f4] rounded-lg overflow-hidden flex items-center justify-center">
+                      {formData.image ? (
+                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon size={32} className="text-[#a8a29e]" />
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 px-4 py-2 bg-[#f5f5f4] text-[#1c1917] rounded-lg cursor-pointer hover:bg-[#e7e5e4] transition-colors">
+                        {uploadingImage ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Upload size={16} />
+                        )}
+                        <span className="text-sm">{uploadingImage ? "Đang upload..." : "Chọn ảnh"}</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleImageUpload}
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                      <p className="text-xs text-[#57534e] mt-1">JPG, PNG tối đa 2MB</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1c1917]">Tên sản phẩm <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={formData.name || ""}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Ví dụ: Tranh thêu hoa sen"
+                    className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                  />
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1c1917]">Danh mục <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.category || ""}
+                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                  >
+                    <option value="">Chọn danh mục</option>
+                    {CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1c1917]">Mô tả</label>
+                  <textarea
+                    value={formData.description || ""}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Mô tả chi tiết về sản phẩm..."
+                    rows={4}
+                    className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none resize-none"
+                  />
+                </div>
+
+                {/* Price & Stock */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#1c1917]">Giá gốc (VNĐ)</label>
+                    <input
+                      type="number"
+                      value={formData.price || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+                      placeholder="2500000"
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#1c1917]">Giá sale (VNĐ)</label>
+                    <input
+                      type="number"
+                      value={formData.salePrice || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, salePrice: e.target.value ? Number(e.target.value) : null }))}
+                      placeholder="2200000"
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#1c1917]">Tồn kho</label>
+                    <input
+                      type="number"
+                      value={formData.stock || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
+                      placeholder="5"
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#1c1917]">Trạng thái</label>
+                    <select
+                      value={formData.status || "active"}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as Product["status"] }))}
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                    >
+                      <option value="active">Đang bán</option>
+                      <option value="outofstock">Hết hàng</option>
+                      <option value="inactive">Tạm ẩn</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Featured */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={formData.featured || false}
+                    onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                    className="w-4 h-4 rounded border-[#e7e5e4] text-[#b45309] focus:ring-[#b45309]"
+                  />
+                  <label htmlFor="featured" className="text-sm text-[#1c1917]">
+                    Sản phẩm nổi bật (hiển thị trên trang chủ)
+                  </label>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-4 border-t border-[#e7e5e4]">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-4 py-2 border border-[#e7e5e4] text-[#1c1917] rounded-lg hover:bg-[#f5f5f4] transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={saveProduct}
+                    disabled={uploadingImage}
+                    className="flex-1 px-4 py-2 bg-[#b45309] text-white rounded-lg hover:bg-[#92400e] transition-colors disabled:opacity-50"
+                  >
+                    {editingProduct ? "Lưu thay đổi" : "Thêm sản phẩm"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
