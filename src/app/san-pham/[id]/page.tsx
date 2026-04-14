@@ -350,74 +350,69 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   <span>Hoàn tiền</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Below: Product Details & Shipping - Full Width */}
-        <div className="mt-16 lg:mt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Left: Product Details */}
-            <div className="bg-[#f9f8f6] p-6 lg:p-8 rounded-lg">
-              <h3 className="text-lg font-medium text-[#1c1917] mb-6">Chi tiết sản phẩm</h3>
-              <ul className="space-y-3 text-sm text-[#57534e]">
-                {product.details.map((detail) => (
-                  <li key={detail.label} className="flex justify-between border-b border-[#e7e5e4] pb-3 last:border-0">
-                    <span className="text-[#1c1917] font-medium">{detail.label}</span>
-                    <span>{detail.value}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              {/* Accordion: Product Details */}
+              <div className="border-t border-[#e7e5e4] pt-4 mt-4">
+                <button 
+                  onClick={() => setOpenSection(openSection === "details" ? null : "details")}
+                  className="w-full flex items-center justify-between py-2 text-sm font-medium text-[#1c1917]"
+                >
+                  <span>Chi tiết sản phẩm</span>
+                  <ChevronDown 
+                    size={18} 
+                    className={`transition-transform ${openSection === "details" ? "rotate-180" : ""}`} 
+                  />
+                </button>
+                <AnimatePresence>
+                  {openSection === "details" && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <ul className="pt-3 pb-2 space-y-2 text-sm text-[#57534e]">
+                        {product.details.map((detail) => (
+                          <li key={detail.label} className="flex justify-between">
+                            <span className="text-[#1c1917] font-medium">{detail.label}</span>
+                            <span>{detail.value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-            {/* Right: Shipping & Returns */}
-            <div className="bg-[#f9f8f6] p-6 lg:p-8 rounded-lg">
-              <h3 className="text-lg font-medium text-[#1c1917] mb-6">Vận chuyển & Đổi trả</h3>
-              <div className="space-y-4 text-sm text-[#57534e]">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[#b45309]/10 rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-[#b45309]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-[#1c1917]">Miễn phí vận chuyển</p>
-                    <p>Cho đơn hàng từ 500.000đ trở lên</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[#b45309]/10 rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-[#b45309]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-[#1c1917]">Giao hàng nhanh</p>
-                    <p>2-5 ngày toàn quốc, giao tận nhà</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[#b45309]/10 rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-[#b45309]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-[#1c1917]">Đổi trả dễ dàng</p>
-                    <p>30 ngày đổi trả nếu lỗi sản xuất</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[#b45309]/10 rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-[#b45309]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-[#1c1917]">Bảo hành</p>
-                    <p>Hoàn tiền 100% nếu không hài lòng</p>
-                  </div>
-                </div>
+              {/* Accordion: Shipping Policy */}
+              <div className="border-t border-[#e7e5e4] pt-4">
+                <button 
+                  onClick={() => setOpenSection(openSection === "shipping" ? null : "shipping")}
+                  className="w-full flex items-center justify-between py-2 text-sm font-medium text-[#1c1917]"
+                >
+                  <span>Chính sách vận chuyển & đổi trả</span>
+                  <ChevronDown 
+                    size={18} 
+                    className={`transition-transform ${openSection === "shipping" ? "rotate-180" : ""}`} 
+                  />
+                </button>
+                <AnimatePresence>
+                  {openSection === "shipping" && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-3 pb-2 space-y-3 text-sm text-[#57534e]">
+                        <p>• Miễn phí vận chuyển cho đơn hàng từ 500.000đ</p>
+                        <p>• Giao hàng toàn quốc 2-5 ngày</p>
+                        <p>• Đổi trả trong 30 ngày nếu lỗi sản xuất</p>
+                        <p>• Hoàn tiền 100% nếu không hài lòng</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
