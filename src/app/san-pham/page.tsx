@@ -1,98 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ChevronDown } from "lucide-react";
+import { Star, ChevronDown, Loader2, SearchX } from "lucide-react";
 import QuickViewModal from "@/components/product/QuickViewModal";
-
-const products = [
-  {
-    id: "1",
-    name: "Tranh thêu hoa sen - Tinh khiết từ bùn",
-    price: 2800000,
-    image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "2",
-    name: "Tranh thêu chim hạc - Tùng hạc diên niên",
-    price: 3500000,
-    image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "3",
-    name: "Tranh thêu cô gái Việt - Dịu dàng áo dài",
-    price: 4200000,
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "4",
-    name: "Tranh thêu phong cảnh - Làng quê yên bình",
-    price: 3200000,
-    image: "https://images.unsplash.com/photo-1582562124811-c8ed1b31bc3b?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "5",
-    name: "Khung thêu gỗ sồi cao cấp 40x50cm",
-    price: 450000,
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80",
-    category: "Phụ kiện thêu",
-  },
-  {
-    id: "6",
-    name: "Bộ chỉ thêu 100 màu cao cấp",
-    price: 280000,
-    image: "https://images.unsplash.com/photo-1606293926075-69a00febf281?w=600&q=80",
-    category: "Phụ kiện thêu",
-  },
-  {
-    id: "7",
-    name: "Kim thêu vàng Nhật Bản (set 12 cây)",
-    price: 180000,
-    image: "https://images.unsplash.com/photo-1606293926075-69a00febf281?w=600&q=80",
-    category: "Phụ kiện thêu",
-  },
-  {
-    id: "8",
-    name: "Tranh thêu hoa mẫu đơn - Phú quý cát tường",
-    price: 3800000,
-    image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "9",
-    name: "Tranh thêu cá chép - Hóa rồng bay cao",
-    price: 4500000,
-    image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "10",
-    name: "Tranh thêu hoa mai - Xuân về",
-    price: 2900000,
-    image: "https://images.unsplash.com/photo-1582562124811-c8ed1b31bc3b?w=600&q=80",
-    category: "Tranh thêu tay",
-  },
-  {
-    id: "11",
-    name: "Vải thêu Aida cao cấp 14ct",
-    price: 150000,
-    image: "https://images.unsplash.com/photo-1606293926075-69a00febf281?w=600&q=80",
-    category: "Phụ kiện thêu",
-  },
-  {
-    id: "12",
-    name: "Bộ dụng cụ thêu cơ bản",
-    price: 320000,
-    image: "https://images.unsplash.com/photo-1606293926075-69a00febf281?w=600&q=80",
-    category: "Phụ kiện thêu",
-  },
-];
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 // Sidebar filter component
 function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
@@ -127,16 +43,59 @@ const colors = [
 ];
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const searchCategory = searchParams.get("category");
+  const searchQuery = searchParams.get("search");
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchCategory);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([0, 5000000]);
+  const [priceRange, setPriceRange] = useState([0, 10000000]);
   const [sortBy, setSortBy] = useState("featured");
-  const [quickViewProduct, setQuickViewProduct] = useState<typeof products[0] | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+
+  useEffect(() => {
+    setSelectedCategory(searchCategory);
+  }, [searchCategory]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        if (!db) {
+          // Fallback to mock data if Firebase not configured
+          const mockProducts = [
+            { id: "1", name: "Tranh thêu hoa sen - Tinh khiết từ bùn", price: 2800000, image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80", category: "Tranh thêu tay" },
+            { id: "2", name: "Tranh thêu chim hạc - Tùng hạc diên niên", price: 3500000, image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80", category: "Tranh thêu tay" },
+            { id: "3", name: "Tranh thêu cô gái Việt - Dịu dàng áo dài", price: 4200000, image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80", category: "Tranh thêu tay" },
+            { id: "4", name: "Tranh thêu phong cảnh - Làng quê yên bình", price: 3200000, image: "https://images.unsplash.com/photo-1582562124811-c8ed1b31bc3b?w=600&q=80", category: "Tranh thêu tay" },
+            { id: "5", name: "Khung thêu gỗ sồi cao cấp 40x50cm", price: 450000, image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80", category: "Phụ kiện thêu" },
+            { id: "6", name: "Bộ chỉ thêu 100 màu cao cấp", price: 280000, image: "https://images.unsplash.com/photo-1606293926075-69a00febf281?w=600&q=80", category: "Phụ kiện thêu" },
+          ];
+          setProducts(mockProducts);
+          return;
+        }
+
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setProducts(data.length > 0 ? data : []); // Use empty if no products in DB
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+    const matchesCategory = !selectedCategory || product.category?.toLowerCase() === selectedCategory.toLowerCase();
     const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-    return matchesCategory && matchesPrice;
+    const matchesSearch = !searchQuery || product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesPrice && matchesSearch;
   });
 
   const formatPrice = (price: number) => {
@@ -242,7 +201,12 @@ export default function ProductsPage() {
           <div className="flex-1">
             {/* Sort Bar */}
             <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-[#57534e]">{filteredProducts.length} sản phẩm</p>
+              <div className="flex flex-col">
+                <p className="text-sm text-[#57534e]">{filteredProducts.length} sản phẩm</p>
+                {searchQuery && (
+                  <p className="text-xs text-[#b45309] font-medium">Kết quả tìm kiếm cho: "{searchQuery}"</p>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-[#57534e]">Sắp xếp:</span>
                 <select 
@@ -259,46 +223,73 @@ export default function ProductsPage() {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="group"
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 text-[#57534e]">
+                <Loader2 size={40} className="animate-spin mb-4 text-[#b45309]" />
+                <p>Đang tải sản phẩm...</p>
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="group"
+                  >
+                    <div className="relative aspect-square bg-[#f5f5f4] overflow-hidden mb-3">
+                      <Link href={`/san-pham/${product.id}`}>
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </Link>
+                      {/* Quick View */}
+                      <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <button 
+                          onClick={() => setQuickViewProduct(product)}
+                          className="w-full bg-[#b45309] text-white py-2.5 text-xs font-medium tracking-wide hover:bg-[#1c1917] transition-colors"
+                        >
+                          Xem nhanh
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex justify-center gap-1 mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} className="fill-[#b45309] text-[#b45309]" />
+                        ))}
+                      </div>
+                      <h3 className="text-sm text-[#1c1917] mb-1 line-clamp-2">{product.name}</h3>
+                      <p className="text-sm font-medium text-[#b45309]">{formatPrice(product.price)}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-20 h-20 bg-[#fffbf5] rounded-full flex items-center justify-center mb-6">
+                  <SearchX size={40} className="text-[#b45309]" />
+                </div>
+                <h3 className="text-xl font-bold text-[#1c1917] mb-2">Không tìm thấy sản phẩm nào</h3>
+                <p className="text-[#57534e] max-w-xs mx-auto mb-8">
+                  Thử thay đổi bộ lọc hoặc tìm kiếm bằng từ khóa khác.
+                </p>
+                <button 
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setPriceRange([0, 10000000]);
+                    window.history.pushState({}, '', '/san-pham');
+                  }}
+                  className="px-6 py-3 bg-[#1c1917] text-white font-bold rounded-xl hover:bg-[#b45309] transition-all"
                 >
-                  <div className="relative aspect-square bg-[#f5f5f4] overflow-hidden mb-3">
-                    <Link href={`/san-pham/${product.id}`}>
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </Link>
-                    {/* Quick View */}
-                    <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <button 
-                        onClick={() => setQuickViewProduct(product)}
-                        className="w-full bg-[#b45309] text-white py-2.5 text-xs font-medium tracking-wide hover:bg-[#1c1917] transition-colors"
-                      >
-                        Xem nhanh
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex justify-center gap-1 mb-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={12} className="fill-[#b45309] text-[#b45309]" />
-                      ))}
-                    </div>
-                    <h3 className="text-sm text-[#1c1917] mb-1 line-clamp-2">{product.name}</h3>
-                    <p className="text-sm font-medium text-[#b45309]">{formatPrice(product.price)}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  Xóa tất cả bộ lọc
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

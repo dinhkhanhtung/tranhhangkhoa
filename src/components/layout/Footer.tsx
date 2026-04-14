@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { Facebook, Instagram } from "@thesvg/react";
+import { Facebook } from "@thesvg/react";
+import { useWebsite } from "@/context/WebsiteContext";
 
 const footerLinks = {
   shop: [
@@ -26,68 +27,48 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  const { settings } = useWebsite();
+
   return (
     <footer className="bg-[#1c1917] text-white">
-      {/* Newsletter Section */}
-      <div className="border-b border-white/10">
-        <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div>
-              <h3 className="text-xl font-serif mb-2">Đăng Ký Nhận Tin</h3>
-              <p className="text-sm text-white/60">Nhận thông tin về sản phẩm mới và ưu đãi đặc biệt</p>
-            </div>
-            <div className="flex gap-3 max-w-md w-full lg:w-auto">
-              <input
-                type="email"
-                placeholder="Email của bạn"
-                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-[#b45309]"
-              />
-              <button className="px-6 py-3 bg-white text-[#1c1917] text-sm font-medium hover:bg-[#b45309] hover:text-white transition-colors">
-                Đăng Ký
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer */}
       <div className="mx-auto max-w-[1400px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2 space-y-4">
             <div className="text-center lg:text-left">
-              <div className="text-xl font-serif text-white tracking-wide">
-                TRANH THÊU TAY
-              </div>
-              <div className="text-[10px] tracking-[0.3em] text-white/60 uppercase">
-                Hằng Khoa
-              </div>
+              {settings.brand.logo ? (
+                <img src={settings.brand.logo} alt={settings.brand.name} className="h-8 lg:h-10 w-auto object-contain brightness-0 invert" />
+              ) : (
+                <div className="flex flex-col items-center lg:items-start">
+                  <div className="text-xl font-serif text-white tracking-wide uppercase">
+                    {settings.brand.name}
+                  </div>
+                  <div className="text-[10px] tracking-[0.3em] text-white/60 uppercase font-medium mt-1">
+                    {settings.brand.slogan}
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-white/60 leading-relaxed max-w-sm">
-              Kế thừa tinh hoa nghề thêu truyền thống, mang đến những tác phẩm nghệ thuật độc đáo và ý nghĩa. Mỗi đường kim mũi chỉ đều chứa đựng tâm huyết và kỹ nghệ.
+            <p className="text-sm text-white/60 leading-relaxed max-w-sm mt-4">
+              {settings.brand.description}
             </p>
-            <div className="flex gap-4 pt-2">
-              <a href="#" className="w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:border-[#b45309] hover:text-[#b45309] transition-colors">
-                <Facebook width={16} height={16} variant="mono" />
-              </a>
-              <a href="#" className="w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:border-[#b45309] hover:text-[#b45309] transition-colors">
-                <Instagram width={16} height={16} />
+            <div className="flex gap-4 pt-4">
+              <a href={settings.contact.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:border-[#b45309] hover:text-[#b45309] transition-all rounded-full">
+                <Facebook width={18} height={18} variant="mono" />
               </a>
             </div>
           </div>
 
           {/* Shop Links */}
           <div>
-            <h4 className="mb-5 text-xs font-medium tracking-[0.2em] uppercase text-white/80">
+            <h4 className="mb-6 text-xs font-bold tracking-[0.2em] uppercase text-white/90">
               Cửa Hàng
             </h4>
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/60 hover:text-[#b45309] transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-white/50 hover:text-[#b45309] transition-colors">
                     {link.name}
                   </Link>
                 </li>
@@ -97,16 +78,13 @@ export default function Footer() {
 
           {/* Support Links */}
           <div>
-            <h4 className="mb-5 text-xs font-medium tracking-[0.2em] uppercase text-white/80">
+            <h4 className="mb-6 text-xs font-bold tracking-[0.2em] uppercase text-white/90">
               Hỗ Trợ
             </h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/60 hover:text-[#b45309] transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-white/50 hover:text-[#b45309] transition-colors">
                     {link.name}
                   </Link>
                 </li>
@@ -116,23 +94,21 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="mb-5 text-xs font-medium tracking-[0.2em] uppercase text-white/80">
+            <h4 className="mb-6 text-xs font-bold tracking-[0.2em] uppercase text-white/90">
               Liên Hệ
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-[#b45309] mt-0.5" />
-                <span className="text-sm text-white/60">0982 581 222</span>
+                <span className="text-sm text-white/60">{settings.contact.phone}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-[#b45309] mt-0.5" />
-                <span className="text-sm text-white/60">info@hoathuong.vn</span>
+                <span className="text-sm text-white/60">{settings.contact.email}</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 shrink-0 text-[#b45309] mt-0.5" />
-                <span className="text-sm text-white/60">
-                  Cũ Văn, Thái Nguyên, Việt Nam
-                </span>
+                <span className="text-sm text-white/60">{settings.contact.address}</span>
               </li>
             </ul>
           </div>
@@ -141,16 +117,16 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-white/40">
-              © 2024 Tranh Thêu Tay Hằng Khoa. All rights reserved.
+            <p className="text-[10px] text-white/30 uppercase tracking-widest">
+              © {new Date().getFullYear()} {settings.brand.name}. All rights reserved.
             </p>
-            <div className="flex gap-6">
-              <Link href="#" className="text-xs text-white/40 hover:text-white/60 transition-colors">
+            <div className="flex gap-8">
+              <Link href="#" className="text-[10px] text-white/30 uppercase tracking-widest hover:text-white transition-colors">
                 Chính sách bảo mật
               </Link>
-              <Link href="#" className="text-xs text-white/40 hover:text-white/60 transition-colors">
+              <Link href="#" className="text-[10px] text-white/30 uppercase tracking-widest hover:text-white transition-colors">
                 Điều khoản sử dụng
               </Link>
             </div>

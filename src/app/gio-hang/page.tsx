@@ -25,25 +25,12 @@ const initialCartItems = [
   },
 ];
 
+import { useCart } from "@/context/CartContext";
+
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { cartItems, updateQuantity, removeFromCart, subtotal } = useCart();
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 500000 ? 0 : 30000;
+  const shipping = subtotal > 500000 || cartItems.length === 0 ? 0 : 30000;
   const total = subtotal + shipping;
 
   const formatPrice = (price: number) => {
@@ -97,7 +84,7 @@ export default function CartPage() {
                           </Link>
                         </div>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="p-1 text-[#57534e] hover:text-red-500 transition-colors"
                         >
                           <X size={18} />
@@ -107,14 +94,14 @@ export default function CartPage() {
                       <div className="flex justify-between items-center mt-4">
                         <div className="flex items-center border border-[#e7e5e4]">
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             className="p-2 hover:bg-[#f5f5f4] transition-colors"
                           >
                             <Minus size={14} />
                           </button>
                           <span className="w-10 text-center text-sm">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             className="p-2 hover:bg-[#f5f5f4] transition-colors"
                           >
                             <Plus size={14} />
@@ -178,9 +165,9 @@ export default function CartPage() {
                 </div>
               )}
 
-              <button className="w-full bg-[#1c1917] text-white py-4 font-medium tracking-wide hover:bg-[#b45309] transition-colors mt-6">
-                Thanh Toán
-              </button>
+              <Link href="/thanh-toan" className="block w-full text-center bg-[#1c1917] text-white py-4 font-medium tracking-wide hover:bg-[#b45309] transition-colors mt-6 uppercase text-sm">
+                Thanh Toán Ngay
+              </Link>
 
               <p className="text-xs text-[#57534e] text-center mt-4">
                 Miễn phí vận chuyển cho đơn hàng từ 500.000đ

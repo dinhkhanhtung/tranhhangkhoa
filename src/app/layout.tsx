@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Be_Vietnam_Pro, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -8,15 +8,25 @@ import MobileBottomBar from "@/components/layout/MobileBottomBar";
 import FloatingContactBar from "@/components/layout/FloatingContactBar";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-be-vietnam",
+});
+
+const notoSans = Noto_Sans({
+  subsets: ["latin", "vietnamese"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-noto-sans",
 });
 
 export const metadata: Metadata = {
   title: "Tranh Thêu Tay Hằng Khoa - Nghệ thuật thêu truyền thống",
   description: "Kế thừa tinh hoa nghề thêu truyền thống, mang đến những tác phẩm nghệ thuật độc đáo và ý nghĩa. Tranh thêu tay, phụ kiện thêu, khóa học thêu online.",
 };
+
+import { CartProvider } from "@/context/CartContext";
+import { WebsiteProvider } from "@/context/WebsiteContext";
 
 export default function RootLayout({
   children,
@@ -25,14 +35,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased pt-[80px] lg:pt-[90px]`} suppressHydrationWarning>
-        <AnnouncementBar />
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <BackToTop />
-        <MobileBottomBar />
-        <FloatingContactBar />
+      <body className={`${beVietnamPro.variable} ${notoSans.variable} font-sans antialiased pt-[80px] lg:pt-[90px]`} suppressHydrationWarning>
+        <WebsiteProvider>
+          <CartProvider>
+            <AnnouncementBar />
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            <BackToTop />
+            <MobileBottomBar />
+            <FloatingContactBar />
+          </CartProvider>
+        </WebsiteProvider>
       </body>
     </html>
   );

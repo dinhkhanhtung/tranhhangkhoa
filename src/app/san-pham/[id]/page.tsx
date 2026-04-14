@@ -93,14 +93,31 @@ const relatedProducts = [
 //   };
 // }
 
+import { useCart } from "@/context/CartContext";
+
 export default function ProductDetailPage({ params }: ProductPageProps) {
   const product = products.find(p => p.id === params.id) || products[0];
+  const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
   const [quantity, setQuantity] = useState(1);
   const [openSection, setOpenSection] = useState<string | null>("details");
   const [activeReviewTab, setActiveReviewTab] = useState("reviews");
+  const [isAdded, setIsAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: quantity,
+      category: product.category
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 3000);
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -264,8 +281,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   <Plus size={16} />
                 </button>
               </div>
-              <button className="flex-1 bg-[#b45309] text-white py-4 px-6 font-medium tracking-wide hover:bg-[#1c1917] transition-colors uppercase text-sm">
-                Thêm vào giỏ hàng
+              <button 
+                onClick={handleAddToCart}
+                className={`flex-1 py-4 px-6 font-medium tracking-wide transition-all uppercase text-sm ${
+                  isAdded ? "bg-green-600 text-white" : "bg-[#1c1917] text-white hover:bg-[#b45309]"
+                }`}
+              >
+                {isAdded ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
               </button>
               <button className="p-4 border border-[#e7e5e4] hover:border-[#b45309] hover:text-[#b45309] transition-colors">
                 <Heart size={20} />

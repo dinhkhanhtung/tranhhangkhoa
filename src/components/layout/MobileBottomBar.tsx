@@ -36,8 +36,8 @@ export default function MobileBottomBar() {
   return (
     <>
       {/* Main Bottom Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e7e5e4] z-50 lg:hidden">
-        <div className="flex items-center justify-around h-16 safe-area-pb">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-[#e7e5e4] z-50 lg:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+        <div className="flex items-center justify-around h-16 pb-safe">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
@@ -46,27 +46,31 @@ export default function MobileBottomBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center justify-center flex-1 h-full relative"
+                className="flex flex-col items-center justify-center flex-1 h-full relative group active:scale-90 transition-transform duration-200"
               >
-                <div className="relative">
+                <div className="relative p-1">
                   <Icon 
                     size={22} 
-                    className={`transition-colors ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={`transition-all duration-300 ${isActive ? "text-[#b45309] scale-110" : "text-[#57534e]"}`}
                   />
                   {/* Cart Badge */}
                   {item.badge && cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#b45309] text-white text-[10px] font-medium rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-[#b45309] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 border-2 border-white shadow-sm">
                       {cartCount}
                     </span>
                   )}
                 </div>
-                <span className={`text-[10px] mt-1 font-medium ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>
+                <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-300 ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>
                   {item.label}
                 </span>
+                
+                {/* Active Indicator Dot */}
                 {isActive && (
-                  <div className="absolute -top-[1px] left-0 right-0 flex justify-center">
-                    <div className="w-8 h-[2px] bg-[#b45309] rounded-full" />
-                  </div>
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-1 w-1 h-1 bg-[#b45309] rounded-full" 
+                  />
                 )}
               </Link>
             );
@@ -78,21 +82,29 @@ export default function MobileBottomBar() {
             return (
               <Link
                 href="/tai-khoan"
-                className="flex flex-col items-center justify-center flex-1 h-full relative"
+                className="flex flex-col items-center justify-center flex-1 h-full relative group active:scale-90 transition-transform duration-200"
               >
-                <User size={22} className={`transition-colors ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`} />
-                <span className={`text-[10px] mt-1 font-medium ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>Tài khoản</span>
+                <div className="relative p-1">
+                  <User 
+                    size={22} 
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={`transition-all duration-300 ${isActive ? "text-[#b45309] scale-110" : "text-[#57534e]"}`} 
+                  />
+                </div>
+                <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-300 ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>
+                  Tài khoản
+                </span>
                 {isActive && (
-                  <div className="absolute -top-[1px] left-0 right-0 flex justify-center">
-                    <div className="w-8 h-[2px] bg-[#b45309] rounded-full" />
-                  </div>
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-1 w-1 h-1 bg-[#b45309] rounded-full" 
+                  />
                 )}
               </Link>
             );
           })()}
         </div>
       </nav>
-
     </>
   );
 }

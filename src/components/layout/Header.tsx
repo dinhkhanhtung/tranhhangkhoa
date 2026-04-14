@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
+import { useWebsite } from "@/context/WebsiteContext";
 
 // Danh mục từ tranhtheuhangkhoa.blogspot.com
 const navLinks = [
@@ -61,52 +64,77 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const { cartCount } = useCart();
+  const { settings } = useWebsite();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/san-pham?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
 
   return (
     <>
-      <header className="fixed top-[32px] left-0 right-0 z-40 bg-[#fffbf5] border-b border-[#e7e5e4]">
+      <header className="fixed top-[32px] left-0 right-0 z-40 bg-[#fffbf5]/80 backdrop-blur-md border-b border-[#e7e5e4] transition-all duration-300">
         <div className="container mx-auto px-4 lg:px-8">
           {/* Row 1: Logo & Icons */}
           <div className="flex items-center justify-between h-[60px] lg:h-[70px]">
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-2 text-[#1c1917] hover:text-[#b45309] transition-colors"
+              className="lg:hidden p-3 -ml-2 text-[#1c1917] hover:text-[#b45309] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             {/* Logo - Center */}
-            <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+            <Link href="/" className="absolute left-1/2 -translate-x-1/2 hover:opacity-80 transition-opacity">
               <div className="text-center">
-                <div className="text-lg lg:text-2xl font-serif text-[#1c1917] tracking-wide">
-                  TRANH THÊU TAY
-                </div>
-                <div className="text-[10px] lg:text-xs tracking-[0.3em] text-[#57534e] uppercase">
-                  Hằng Khoa
-                </div>
+                {settings.brand.logo ? (
+                  <img src={settings.brand.logo} alt={settings.brand.name} className="h-8 lg:h-10 w-auto object-contain" />
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="text-xl lg:text-2xl font-bold text-[#1c1917] tracking-wider uppercase">
+                      {settings.brand.name}
+                    </div>
+                    <div className="text-[10px] lg:text-xs tracking-[0.4em] text-[#57534e] uppercase font-medium">
+                      {settings.brand.slogan}
+                    </div>
+                  </div>
+                )}
               </div>
             </Link>
 
             {/* Right Icons */}
-            <div className="flex items-center space-x-1 lg:space-x-4 ml-auto">
+            <div className="flex items-center space-x-1 lg:space-x-2 ml-auto">
               <button 
-                className="p-2 text-[#1c1917] hover:text-[#b45309] transition-colors"
+                className="p-3 text-[#1c1917] hover:text-[#b45309] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
               >
                 <Search size={20} />
               </button>
               <Link
                 href="/gio-hang"
-                className="p-2 text-[#1c1917] hover:text-[#b45309] transition-colors relative"
+                className="p-3 text-[#1c1917] hover:text-[#b45309] transition-colors relative min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <ShoppingBag size={20} />
+                {cartCount > 0 && (
+                  <span className="absolute top-2 right-2 w-4 h-4 bg-[#b45309] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </div>
           </div>
 
           {/* Row 2: Desktop Navigation Menu (Below Logo) */}
-          <nav className="hidden lg:flex items-center justify-center space-x-10 py-3 border-t border-[#e7e5e4]">
+          <nav className="hidden lg:flex items-center justify-center space-x-8 py-3 border-t border-[#e7e5e4]/50">
             {navLinks.map((link) => (
               <div
                 key={link.href}
@@ -116,10 +144,10 @@ export default function Header() {
               >
                 <Link
                   href={link.href}
-                  className="flex items-center space-x-1 text-sm font-medium text-[#1c1917] hover:text-[#b45309] transition-colors"
+                  className="flex items-center space-x-1.5 text-[13px] font-semibold text-[#1c1917] hover:text-[#b45309] transition-colors uppercase tracking-wide"
                 >
                   <span>{link.label}</span>
-                  {link.megaMenu && <ChevronDown size={14} />}
+                  {link.megaMenu && <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />}
                 </Link>
                 
                 {/* Mega Menu */}
@@ -127,46 +155,47 @@ export default function Header() {
                   <AnimatePresence>
                     {activeMegaMenu === link.label && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 bg-white shadow-xl border border-[#e7e5e4] z-50"
+                        exit={{ opacity: 0, y: 15 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute top-full left-1/2 -translate-x-1/2 bg-white shadow-2xl border border-[#e7e5e4] z-50 rounded-b-lg overflow-hidden"
                       >
                         <div className="flex">
                           {/* Left Image */}
-                          <div className="w-[220px] relative">
+                          <div className="w-[240px] relative overflow-hidden group/img">
                             <Link href={link.href} className="block relative h-full">
-                              <div className="relative h-full min-h-[280px]">
+                              <div className="relative h-full min-h-[320px]">
                                 <img
                                   src={link.megaMenu.image}
                                   alt={link.megaMenu.imageTitle}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                                  <p className="text-xs font-medium uppercase tracking-wider mb-1">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                                  <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-white/90">
                                     {link.megaMenu.imageTitle}
                                   </p>
-                                  <span className="text-xs underline underline-offset-2 hover:text-[#b45309] transition-colors">
-                                    Xem tất cả
+                                  <span className="text-[11px] font-semibold uppercase tracking-widest border-b border-white/40 pb-1 hover:text-[#b45309] hover:border-[#b45309] transition-all">
+                                    Khám phá ngay
                                   </span>
                                 </div>
                               </div>
                             </Link>
                           </div>
                           {/* Right Columns */}
-                          <div className="p-8 grid grid-cols-3 gap-8 min-w-[540px]">
+                          <div className="p-10 grid grid-cols-3 gap-12 min-w-[600px] bg-white">
                             {link.megaMenu.columns.map((column: {title: string, items: string[]}) => (
                               <div key={column.title}>
-                                <h4 className="text-[#1c1917] text-xs font-semibold tracking-[0.15em] uppercase mb-5">
+                                <h4 className="text-[#1c1917] text-[11px] font-bold tracking-[0.2em] uppercase mb-6 border-l-2 border-[#b45309] pl-3">
                                   {column.title}
                                 </h4>
-                                <ul className="space-y-3">
+                                <ul className="space-y-4">
                                   {column.items.map((item: string) => (
                                     <li key={item}>
                                       <Link 
                                         href={`${link.href}?filter=${encodeURIComponent(item)}`} 
-                                        className="text-sm text-[#57534e] hover:text-[#b45309] transition-colors block py-1"
+                                        className="text-[13px] text-[#57534e] hover:text-[#b45309] hover:translate-x-1 transition-all block"
                                       >
                                         {item}
                                       </Link>
@@ -195,16 +224,19 @@ export default function Header() {
                 className="border-t border-[#e7e5e4] overflow-hidden"
               >
                 <div className="py-4">
-                  <div className="relative max-w-2xl mx-auto">
+                  <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
                     <input
                       type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Tìm kiếm sản phẩm..."
-                      className="w-full px-4 py-3 border border-[#e7e5e4] focus:border-[#b45309] focus:outline-none"
+                      className="w-full px-4 py-3 border border-[#e7e5e4] focus:border-[#b45309] focus:outline-none rounded-lg"
+                      autoFocus
                     />
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b45309]">
+                    <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b45309]">
                       <Search size={20} />
                     </button>
-                  </div>
+                  </form>
                 </div>
               </motion.div>
             )}

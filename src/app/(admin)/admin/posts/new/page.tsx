@@ -8,24 +8,46 @@ import {
   ArrowLeft, Save, Eye, Image as ImageIcon, Link as LinkIcon, 
   Heading, Bold, Italic, List, ListOrdered, Quote, Code, Sparkles,
   Clock, Calendar, Search, X, Upload, Grid, Send,
-  AlignLeft, Tag, FileText, Settings, Trash2, Copy
+  AlignLeft, Tag, FileText, Settings, Trash2, Copy,
+  Chrome // Using Chrome as Drive icon placeholder
 } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, getDocs, addDoc, Timestamp } from "firebase/firestore";
 
-const ToolbarButton = ({ icon, active, onClick, title }: { icon: React.ReactNode; active?: boolean; onClick?: () => void; title?: string }) => (
-  <button 
-    onClick={onClick} 
-    title={title}
-    className={`p-2 rounded hover:bg-[#f5f5f4] transition-colors ${active ? "bg-[#f5f5f4] text-[#b45309]" : "text-[#57534e]"}`}
-  >
-    {icon}
-  </button>
-);
+// ... keep existing ToolbarButton ...
 
 export default function NewPostPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "media" | "ai" | "schedule" | "seo">("content");
   const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [showDrivePicker, setShowDrivePicker] = useState(false);
+
+  // Load media from Firestore for the library tab
+  useEffect(() => {
+    const loadMedia = async () => {
+      if (!db) return;
+      const q = query(collection(db, "media"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      setMediaItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    if (activeTab === "media") loadMedia();
+  }, [activeTab]);
+
+  const handleDriveClick = () => {
+    alert("Tính năng kết nối Google Drive:\n1. Mở cửa sổ chọn file từ Drive.\n2. Tải file về buffer.\n3. Tự động upload lên ImgBB.\n4. Chèn vào bài viết.\n\n(Cần cấu hình Google API Client ID để kích hoạt thực tế)");
+  };
+
+  const handleSelectFromLibrary = (url: string) => {
+    setThumbnail(url);
+    setActiveTab("content");
+  };
+
+  const insertImageToContent = (url: string) => {
+    insertText(`<img src="${url}" alt="image" />\n`);
+    setActiveTab("content");
+  };
   
   const [formData, setFormData] = useState({
     title: "",
@@ -50,8 +72,20 @@ export default function NewPostPage() {
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setThumbnail(url);
+    
+    setIsLoading(true);
+    try {
+      const { uploadImage } = await import("@/lib/upload");
+      const url = await uploadImage(file);
+      if (url) {
+        setThumbnail(url);
+        // Also add to media library if needed, or show success message
+      }
+    } catch (error: any) {
+      alert(error.message || "Không thể tải ảnh lên. Vui lòng kiểm tra lại cấu hình API.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -219,7 +253,8 @@ export default function NewPostPage() {
                     <ToolbarButton icon={<ListOrdered size={18} />} onClick={() => insertText("<ol>\n  <li>", "</li>\n</ol>")} title="Ordered List" />
                     <div className="w-px h-5 bg-[#e7e5e4] mx-1" />
                     <ToolbarButton icon={<LinkIcon size={18} />} onClick={() => insertText('<a href="">', "</a>")} title="Link" />
-                    <ToolbarButton icon={<ImageIcon size={18} />} title="Image" />
+                    <ToolbarButton icon={<ImageIcon size={18} />} onClick={() => setActiveTab("media")} title="Chọn từ thư viện" />
+                    <ToolbarButton icon={<Chrome size={18} className="text-blue-600" />} onClick={handleDriveClick} title="Lấy từ Google Drive" />
                     <ToolbarButton icon={<Quote size={18} />} onClick={() => insertText("<blockquote>", "</blockquote>")} title="Quote" />
                     <ToolbarButton icon={<Code size={18} />} onClick={() => insertText("<code>", "</code>")} title="Code" />
                     <ToolbarButton icon={<AlignLeft size={18} />} onClick={() => insertText("<p>", "</p>")} title="Paragraph" />
@@ -250,35 +285,36 @@ export default function NewPostPage() {
                     <input type="file" accept="image/*" className="hidden" />
                   </div>
 
-                  {/* Media Library */}
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-[#1c1917] text-sm">Kho ảnh</h3>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]" size={14} />
-                          <input type="text" placeholder="Tìm kiếm..." className="pl-9 pr-3 py-1.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none text-sm" />
-                        </div>
-                        <button className="p-1.5 hover:bg-[#e7e5e4] rounded transition-colors">
-                          <Grid size={16} />
-                        </button>
+                  {/* Media Library From Firestore */}
+                  <div className="mt-8">
+                    <h3 className="font-semibold text-[#1c1917] text-sm mb-4">Ảnh đã tải lên</h3>
+                    {mediaItems.length === 0 ? (
+                      <div className="text-center py-10 bg-[#f5f5f4] rounded-lg border border-dashed border-[#e7e5e4]">
+                        <p className="text-xs text-[#a8a29e]">Chưa có ảnh nào trong thư viện.</p>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                      {mediaLibrary.map((img, i) => (
-                        <div key={i} className="relative group aspect-square">
-                          <img src={img} alt={`Image ${i}`} className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform" />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                            <button className="p-1.5 bg-white rounded hover:bg-[#fffbf5] transition-colors">
-                              <Copy size={14} />
-                            </button>
-                            <button className="p-1.5 bg-white rounded hover:bg-[#fffbf5] transition-colors text-red-600">
-                              <Trash2 size={14} />
-                            </button>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {mediaItems.map((item) => (
+                          <div key={item.id} className="relative group aspect-square">
+                            <img src={item.url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col items-center justify-center gap-2">
+                              <button 
+                                onClick={() => insertImageToContent(item.url)}
+                                className="px-2 py-1 bg-white text-[10px] font-bold rounded hover:bg-[#b45309] hover:text-white transition-colors"
+                              >
+                                Chèn vào bài
+                              </button>
+                              <button 
+                                onClick={() => handleSelectFromLibrary(item.url)}
+                                className="px-2 py-1 bg-[#b45309] text-white text-[10px] font-bold rounded hover:bg-[#1c1917] transition-colors"
+                              >
+                                Làm ảnh đại diện
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
