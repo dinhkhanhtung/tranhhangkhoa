@@ -7,9 +7,8 @@ import { motion } from "framer-motion";
 import { 
   ArrowLeft, Save, Eye, Image as ImageIcon, Link as LinkIcon, 
   Heading, Bold, Italic, List, ListOrdered, Quote, Code, Sparkles,
-  Clock, Calendar, Search, X, Upload, Grid, Facebook, Send,
-  CheckCircle, AlertCircle, ChevronDown, Type, AlignLeft,
-  Hash, Tag, FileText, Settings, Trash2, Copy
+  Clock, Calendar, Search, X, Upload, Grid, Send,
+  AlignLeft, Tag, FileText, Settings, Trash2, Copy
 } from "lucide-react";
 
 const ToolbarButton = ({ icon, active, onClick, title }: { icon: React.ReactNode; active?: boolean; onClick?: () => void; title?: string }) => (

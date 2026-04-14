@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { 
-  Search, Filter, Eye, Truck, CheckCircle, XCircle, Clock,
-  Package, DollarSign, MoreVertical, Download, Calendar
+  Search, Filter, Download, MoreHorizontal, Eye, Truck,
+  ShoppingBag, ArrowUpDown, Package, User, CreditCard, MapPin,
+  Clock, DollarSign, MoreVertical
 } from "lucide-react";
 
 export default function OrdersPage() {

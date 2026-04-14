@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { 
-  Bell, Check, Trash2, Settings, Filter, Mail, ShoppingCart,
+  Bell, Check, Trash2, Settings, Mail, ShoppingCart,
   MessageSquare, AlertCircle, Info, CheckCircle, MoreVertical
 } from "lucide-react";
 

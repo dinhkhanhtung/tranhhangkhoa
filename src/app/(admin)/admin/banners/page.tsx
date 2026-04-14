@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { 
-  Plus, Edit, Trash2, Eye, MoreVertical, Calendar, Image as ImageIcon,
-  Layout, ArrowUp, ArrowDown, ToggleLeft, ToggleRight
+  Plus, Search, Filter, MoreHorizontal, Edit2, Trash2, Eye,
+  Calendar, ArrowUpDown, Image as ImageIcon, Check, X, Layout,
+  ToggleRight, ArrowUp, ArrowDown, Edit
 } from "lucide-react";
 
 export default function BannersPage() {

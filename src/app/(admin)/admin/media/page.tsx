@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { 
-  Search, Upload, Grid, List, Trash2, Copy, Download, Folder,
-  Image as ImageIcon, MoreVertical, CheckSquare, X, Plus
+  Search, Filter, Grid, List as ListIcon, Upload, Folder, Image as ImageIcon,
+  MoreHorizontal, Trash2, Download, Copy, Check, X, FolderOpen,
+  ChevronRight, FileImage, FileText, Film, List, CheckSquare, MoreVertical
 } from "lucide-react";
 
 export default function MediaPage() {

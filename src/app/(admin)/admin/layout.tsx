@@ -5,11 +5,11 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, FileText, ShoppingBag, Image as ImageIcon,
+  LayoutDashboard, FileText, ShoppingBag,
   Users, Settings, MessageSquare, LogOut, Menu, X, ChevronRight,
-  Bell, Search, Layers, Tag, BarChart3, PenTool, Layout, Reply,
+  Bell, Search, Tag, BarChart3, Layout, Reply,
   DollarSign, File, Shield, Globe, Key, Sparkles, ShoppingCart,
-  Folder, Megaphone, Package
+  Folder, Megaphone
 } from "lucide-react";
 
 const navItems = [
