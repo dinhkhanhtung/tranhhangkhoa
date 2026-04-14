@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { 
-  Plus, Search, Filter, MoreHorizontal, Edit2, Trash2, Eye,
-  Calendar, ArrowUpDown, Image as ImageIcon, Check, X, Layout,
+  Plus, Trash2, Eye, Calendar, Image as ImageIcon, Layout,
   ToggleRight, ArrowUp, ArrowDown, Edit
 } from "lucide-react";
 
