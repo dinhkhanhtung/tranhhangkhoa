@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Noto_Sans } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import BackToTop from "@/components/layout/BackToTop";
-import MobileBottomBar from "@/components/layout/MobileBottomBar";
-import FloatingContactBar from "@/components/layout/FloatingContactBar";
-import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import { Providers } from "@/components/Providers";
+import ClientLayout from "@/components/ClientLayout";
 
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin", "vietnamese"],
@@ -25,8 +21,6 @@ export const metadata: Metadata = {
   description: "Kế thừa tinh hoa nghề thêu truyền thống, mang đến những tác phẩm nghệ thuật độc đáo và ý nghĩa. Tranh thêu tay, phụ kiện thêu, khóa học thêu online.",
 };
 
-import { Providers } from "@/components/Providers";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,15 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${beVietnamPro.variable} ${notoSans.variable} font-sans antialiased pt-[80px] lg:pt-[90px]`} suppressHydrationWarning>
+      <body className={`${beVietnamPro.variable} ${notoSans.variable} font-sans antialiased`} suppressHydrationWarning>
         <Providers>
-          <AnnouncementBar />
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <BackToTop />
-          <MobileBottomBar />
-          <FloatingContactBar />
+          <ClientLayout>
+            {children}
+          </ClientLayout>
         </Providers>
       </body>
     </html>

@@ -21,7 +21,7 @@ export default function AdminRootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased bg-[#fffbf5] !pt-0`} suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased bg-[#fffbf5]`} suppressHydrationWarning>
         {children}
       </body>
     </html>
