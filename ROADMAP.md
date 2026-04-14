@@ -39,12 +39,13 @@
 ### 🟡 GIAI ĐOẠN 1: BÁN HÀNG HOÀN CHỈNH (2 tuần) - ĐANG THỰC HIỆN
 
 #### 1.1 Thanh Toán Tích Hợp ⭐⭐⭐⭐⭐ ✅
-- [x] Tích hợp VNPay (QR Code + thẻ) - *Demo mode, cần API key thật*
-- [x] Tích hợp Momo Pay - *Demo mode, cần API key thật*
-- [x] Chuyển khoản ngân hàng (manual)
-- [x] COD (thanh toán khi nhận)
-- [x] Trang thanh toán checkout
-- [x] Trang kết quả thanh toán
+- [x] **Chuyển khoản ngân hàng** - Hiển thị thông tin TK trong checkout, xác nhận thủ công qua Zalo
+- [x] **COD** (thanh toán khi nhận) - Giao hàng thu tiền
+- [x] Trang thanh toán checkout với chọn phương thức
+- [x] Trang kết quả thanh toán hiển thị thông tin chuyển khoản
+- [x] Cấu hình phương thức thanh toán trong WebsiteContext (bật/tắt)
+- [ ] ~~VNPay~~ (Bỏ qua - cần đăng ký doanh nghiệp, phức tạp)
+- [ ] ~~Momo~~ (Bỏ qua - cần hợp đồng, phí cao)
 - [ ] Chọn địa chỉ giao hàng (nhiều địa chỉ)
 - [ ] Mã giảm giá/ưu đãi
 
