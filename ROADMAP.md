@@ -65,11 +65,13 @@
 - [ ] Lọc đơn hàng theo trạng thái, ngày
 - [ ] In phiếu giao hàng
 
-#### 1.3 Admin Sản Phẩm Hoàn Chỉnh ⭐⭐⭐⭐
-- [ ] Form thêm sản phẩm (UI dễ dùng)
-- [ ] Upload ảnh kéo-thả (imgbb)
-- [ ] Rich text editor mô tả (TinyMCE)
-- [ ] Quản lý tồn kho số lượng
+#### 1.3 Admin Sản Phẩm Hoàn Chỉnh ⭐⭐⭐⭐ ✅
+- [x] Form thêm/sửa sản phẩm (UI dễ dùng, modal)
+- [x] Upload ảnh (imgbb API)
+- [x] Quản lý tồn kho số lượng
+- [x] Thống kê: Tổng, đang bán, hết hàng, nổi bật
+- [x] Xóa sản phẩm
+- [ ] Rich text editor mô tả (TinyMCE) - *Tùy chọn*
 - [ ] Quản lý biến thể (màu, size)
 - [ ] Import/Export Excel
 
