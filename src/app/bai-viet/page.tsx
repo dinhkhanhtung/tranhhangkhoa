@@ -86,7 +86,7 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <div className="bg-[#fffbf5] py-16">
+      <div className="bg-[#fffbf5] pt-[140px] lg:pt-[160px] pb-16">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl md:text-4xl font-serif text-[#1c1917] mb-4">
             Bài Viết
