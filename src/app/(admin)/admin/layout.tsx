@@ -15,7 +15,6 @@ import {
 const navItems = [
   { href: "/admin", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
   { href: "/admin/notifications", icon: <Bell size={20} />, label: "Thông báo" },
-  { href: "/admin/editor", icon: <PenTool size={20} />, label: "Trình soạn thảo" },
   { href: "/admin/posts", icon: <FileText size={20} />, label: "Bài viết" },
   { href: "/admin/products", icon: <ShoppingBag size={20} />, label: "Sản phẩm" },
   { href: "/admin/orders", icon: <ShoppingCart size={20} />, label: "Đơn hàng" },
