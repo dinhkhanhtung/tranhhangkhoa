@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Search, Edit2, Trash2, X, Upload, Loader2,
   Play, Users, Clock, DollarSign, CheckCircle2, XCircle,
-  ChevronDown, ChevronUp, GripVertical, ExternalLink
+  ChevronDown, ChevronUp, GripVertical, ExternalLink, Settings2
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
@@ -362,15 +363,24 @@ export default function AdminCoursesPage() {
                     <p className="text-sm text-[#57534e] line-clamp-1">{course.description}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    <Link
+                      href={`/admin/courses/${course.id}`}
+                      className="p-2 text-[#57534e] hover:bg-[#f5f5f4] rounded-lg transition-colors"
+                      title="Quản lý bài học"
+                    >
+                      <Settings2 size={16} />
+                    </Link>
                     <button
                       onClick={() => openEditModal(course)}
                       className="p-2 text-[#57534e] hover:bg-[#f5f5f4] rounded-lg transition-colors"
+                      title="Sửa thông tin"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => deleteCourse(course.id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Xóa khóa học"
                     >
                       <Trash2 size={16} />
                     </button>

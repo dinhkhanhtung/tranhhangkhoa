@@ -32,6 +32,7 @@ interface Enrollment {
   enrolledAt: Timestamp;
   completedLessons: string[];
   lastAccessedAt?: Timestamp;
+  lastAccessedLessonId?: string;
 }
 
 export default function LearningPage() {
@@ -94,11 +95,19 @@ export default function LearningPage() {
   };
 
   const getLastAccessedLesson = (enrollment: Enrollment, course: Course) => {
-    if (!enrollment.lastAccessedAt) return null;
-    // Return the first incomplete lesson or the last lesson
+    // Priority 1: Use lastAccessedLessonId if available and exists in course
+    if (enrollment.lastAccessedLessonId) {
+      const lastLesson = course.lessons?.find(l => l.id === enrollment.lastAccessedLessonId);
+      if (lastLesson) return lastLesson;
+    }
+    
+    // Priority 2: Return the first incomplete lesson
     const completedIds = enrollment.completedLessons || [];
     const incompleteLesson = course.lessons?.find(l => !completedIds.includes(l.id));
-    return incompleteLesson || course.lessons?.[course.lessons.length - 1];
+    if (incompleteLesson) return incompleteLesson;
+    
+    // Priority 3: Return the first lesson (starting fresh)
+    return course.lessons?.[0] || null;
   };
 
   if (status === "loading" || loading) {

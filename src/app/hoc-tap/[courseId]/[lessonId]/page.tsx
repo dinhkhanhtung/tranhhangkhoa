@@ -33,6 +33,8 @@ interface Enrollment {
   id: string;
   completedLessons: string[];
   lastAccessedAt?: Timestamp;
+  lastAccessedLessonId?: string;
+  lastAccessedCourseId?: string;
 }
 
 export default function LessonPage() {
@@ -103,9 +105,11 @@ export default function LessonPage() {
         setEnrollment(enrollmentData);
         setIsCompleted(enrollmentData.completedLessons?.includes(lessonId) || false);
 
-        // Update last accessed
+        // Update last accessed - save both timestamp and current lesson ID for resume
         await updateDoc(doc(db, "enrollments", enrollmentData.id), {
-          lastAccessedAt: Timestamp.now()
+          lastAccessedAt: Timestamp.now(),
+          lastAccessedLessonId: lessonId,
+          lastAccessedCourseId: courseId,
         });
       } else {
         // Not enrolled, redirect to course page
