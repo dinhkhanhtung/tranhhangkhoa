@@ -189,10 +189,15 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 relative">
+            {/* Wishlist Button - Top Right */}
+            <button className="absolute -top-2 right-0 p-3 border border-[#e7e5e4] hover:border-[#b45309] hover:text-[#b45309] transition-colors rounded-lg">
+              <Heart size={20} />
+            </button>
+            
             <div>
               <p className="text-sm text-[#b45309] mb-2">{product.category}</p>
-              <h1 className="text-3xl font-serif text-[#1c1917] mb-4">{product.name}</h1>
+              <h1 className="text-3xl font-serif text-[#1c1917] mb-4 pr-14">{product.name}</h1>
               
               {/* Rating */}
               <div className="flex items-center gap-2 mb-4">
@@ -265,8 +270,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             )}
 
             {/* Quantity & Add to Cart */}
-            <div className="flex gap-4">
-              <div className="flex items-center border border-[#e7e5e4]">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex items-center border border-[#e7e5e4] w-full sm:w-auto">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="p-3 hover:bg-[#f5f5f4]"
@@ -283,14 +288,11 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
               <button 
                 onClick={handleAddToCart}
-                className={`flex-1 py-4 px-6 font-medium tracking-wide transition-all uppercase text-sm ${
+                className={`flex-1 py-4 px-6 font-medium tracking-wide transition-all uppercase text-sm flex items-center justify-center gap-2 ${
                   isAdded ? "bg-green-600 text-white" : "bg-[#1c1917] text-white hover:bg-[#b45309]"
                 }`}
               >
                 {isAdded ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
-              </button>
-              <button className="p-4 border border-[#e7e5e4] hover:border-[#b45309] hover:text-[#b45309] transition-colors">
-                <Heart size={20} />
               </button>
             </div>
 

@@ -118,9 +118,16 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
               </div>
 
               {/* Right: Product Info */}
-              <div className="p-8 lg:p-12 overflow-auto">
-                <p className="text-sm text-[#b45309] mb-2">{product.category}</p>
-                <h2 className="text-2xl font-serif text-[#1c1917] mb-4">{product.name}</h2>
+              <div className="space-y-6 relative">
+                {/* Wishlist Button - Top Right */}
+                <button className="absolute -top-2 right-0 p-3 border border-[#e7e5e4] hover:border-[#b45309] hover:text-[#b45309] transition-colors rounded-lg">
+                  <Heart size={20} />
+                </button>
+                
+                <div>
+                  <p className="text-sm text-[#b45309] mb-1">{product.category}</p>
+                  <h2 className="text-2xl font-serif text-[#1c1917] pr-12">{product.name}</h2>
+                </div>
                 
                 {/* Rating */}
                 <div className="flex items-center gap-2 mb-4">
@@ -192,8 +199,8 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                 )}
 
                 {/* Quantity & Actions */}
-                <div className="flex gap-4 mb-6">
-                  <div className="flex items-center border border-[#e7e5e4]">
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <div className="flex items-center border border-[#e7e5e4] w-full sm:w-auto">
                     <button 
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="p-3 hover:bg-[#f5f5f4]"
@@ -211,9 +218,6 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                   <button className="flex-1 bg-[#b45309] text-white py-4 px-6 font-medium tracking-wide hover:bg-[#1c1917] transition-colors uppercase text-sm flex items-center justify-center gap-2">
                     <ShoppingBag size={18} />
                     Thêm vào giỏ hàng
-                  </button>
-                  <button className="p-4 border border-[#e7e5e4] hover:border-[#b45309] hover:text-[#b45309] transition-colors">
-                    <Heart size={20} />
                   </button>
                 </div>
 
