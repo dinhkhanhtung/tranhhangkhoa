@@ -14,7 +14,18 @@ import {
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, getDocs, addDoc, Timestamp } from "firebase/firestore";
 
-// ... keep existing ToolbarButton ...
+function ToolbarButton({ icon, onClick, title }: { icon: React.ReactNode; onClick: () => void; title: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="p-2 text-[#57534e] hover:text-[#b45309] hover:bg-white rounded-md transition-all active:scale-95"
+    >
+      {icon}
+    </button>
+  );
+}
 
 export default function NewPostPage() {
   const router = useRouter();
