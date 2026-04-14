@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { Home, ShoppingBag, BookOpen, Search, User } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 const menuItems = [
   { href: "/", label: "Trang chủ", icon: Home },
@@ -15,7 +17,7 @@ const menuItems = [
 export default function MobileBottomBar() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
-  const [cartCount] = useState(2); // Mock cart count
+  const { cartCount } = useCart();
 
   useEffect(() => {
     // Only show on mobile devices
