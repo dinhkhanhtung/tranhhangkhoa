@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Search, MoreHorizontal, Edit2, Trash2, Eye,
-  Play, Users, Clock, DollarSign, Filter,
-  CheckCircle2, XCircle, Lock, Unlock
+  Plus, Search, Edit2, Trash2, X, Upload, Loader2,
+  Play, Users, Clock, DollarSign, CheckCircle2, XCircle,
+  ChevronDown, ChevronUp, GripVertical, ExternalLink
 } from "lucide-react";
-import Link from "next/link";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 
-interface Video {
+interface Lesson {
   id: string;
   title: string;
-  youtubeId: string;
+  description?: string;
   duration: string;
+  videoUrl: string;
   order: number;
   isPublished: boolean;
 }
@@ -21,121 +23,253 @@ interface Video {
 interface Course {
   id: string;
   title: string;
-  description: string;
-  thumbnail: string;
-  instructor: string;
+  description?: string;
+  image: string;
+  instructor?: string;
   level: "beginner" | "intermediate" | "advanced";
-  type: "full" | "tip";
   price: number;
-  videos: Video[];
-  totalStudents: number;
+  lessons: Lesson[];
   isPublished: boolean;
-  createdAt: string;
+  featured: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }
 
-const mockCourses: Course[] = [
-  {
-    id: "1",
-    title: "Thêu Cơ Bản: Hoa Cúc",
-    description: "Khóa học dành cho người mới bắt đầu, học các kỹ thuật thêu cơ bản qua tác phẩm hoa cúc truyền thống.",
-    thumbnail: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&q=80",
-    instructor: "Cô Hằng Khoa",
-    level: "beginner",
-    type: "full",
-    price: 0,
-    videos: [
-      { id: "v1", title: "Giới thiệu khóa học", youtubeId: "dQw4w9WgXcQ", duration: "05:30", order: 1, isPublished: true },
-      { id: "v2", title: "Chuẩn bị nguyên liệu", youtubeId: "dQw4w9WgXcQ", duration: "08:15", order: 2, isPublished: true },
-      { id: "v3", title: "Kỹ thuật đường kim cơ bản", youtubeId: "dQw4w9WgXcQ", duration: "12:45", order: 3, isPublished: true },
-    ],
-    totalStudents: 156,
-    isPublished: true,
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    title: "Thêu Nâng Cao: Chim Hạc",
-    description: "Học kỹ thuật thêu chi tiết lông chim, tạo độ mềm mại và chuyển động cho tác phẩm.",
-    thumbnail: "https://images.unsplash.com/photo-1452570053594-1b985d6ea890?w=400&q=80",
-    instructor: "Thầy Minh",
-    level: "advanced",
-    type: "full",
-    price: 1200000,
-    videos: [
-      { id: "v4", title: "Nghiên cứu hình dáng chim hạc", youtubeId: "dQw4w9WgXcQ", duration: "10:20", order: 1, isPublished: true },
-      { id: "v5", title: "Kỹ thuật thêu lông chi tiết", youtubeId: "dQw4w9WgXcQ", duration: "15:30", order: 2, isPublished: true },
-    ],
-    totalStudents: 89,
-    isPublished: true,
-    createdAt: "2024-02-20",
-  },
-  {
-    id: "3",
-    title: "Mẹo: Cách chọn chỉ phù hợp",
-    description: "Hướng dẫn chọn loại chỉ cho từng loại vải và họa tiết thêu.",
-    thumbnail: "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400&q=80",
-    instructor: "Cô Hằng Khoa",
-    level: "beginner",
-    type: "tip",
-    price: 99000,
-    videos: [
-      { id: "v6", title: "Các loại chỉ phổ biến", youtubeId: "dQw4w9WgXcQ", duration: "08:45", order: 1, isPublished: true },
-    ],
-    totalStudents: 234,
-    isPublished: true,
-    createdAt: "2024-03-10",
-  },
+const LEVELS = [
+  { value: "beginner", label: "Cơ bản", color: "bg-green-100 text-green-700" },
+  { value: "intermediate", label: "Trung cấp", color: "bg-yellow-100 text-yellow-700" },
+  { value: "advanced", label: "Nâng cao", color: "bg-red-100 text-red-700" },
 ];
 
-const levelLabels = {
-  beginner: { label: "Cơ bản", color: "bg-green-100 text-green-700" },
-  intermediate: { label: "Trung cấp", color: "bg-yellow-100 text-yellow-700" },
-  advanced: { label: "Nâng cao", color: "bg-red-100 text-red-700" },
-};
-
-export default function CoursesAdminPage() {
-  const [courses, setCourses] = useState<Course[]>(mockCourses);
-  const [filter, setFilter] = useState<"all" | "full" | "tip">("all");
+export default function AdminCoursesPage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  const filteredCourses = courses.filter((course) => {
-    const matchesFilter = filter === "all" || course.type === filter;
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+  const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  
+  const [formData, setFormData] = useState<Partial<Course>>({
+    title: "",
+    description: "",
+    image: "",
+    instructor: "",
+    level: "beginner",
+    price: 0,
+    isPublished: false,
+    featured: false,
+    lessons: [],
   });
 
-  const handleDeleteCourse = (courseId: string) => {
-    if (confirm("Bạn có chắc muốn xóa khóa học này?")) {
-      setCourses(courses.filter((c) => c.id !== courseId));
+  // Fetch courses
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    if (!db) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const coursesRef = collection(db, "courses");
+      const q = query(coursesRef, orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+
+      const coursesData: Course[] = [];
+      snapshot.forEach((doc) => {
+        coursesData.push({ id: doc.id, ...doc.data() } as Course);
+      });
+
+      setCourses(coursesData);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleTogglePublish = (courseId: string) => {
-    setCourses(courses.map((c) =>
-      c.id === courseId ? { ...c, isPublished: !c.isPublished } : c
-    ));
+  // Filter courses
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filter === "all" || 
+      (filter === "published" && course.isPublished) ||
+      (filter === "draft" && !course.isPublished);
+    return matchesSearch && matchesFilter;
+  });
+
+  // Stats
+  const stats = {
+    total: courses.length,
+    published: courses.filter(c => c.isPublished).length,
+    draft: courses.filter(c => !c.isPublished).length,
+    totalStudents: courses.reduce((sum, c) => sum + (c.lessons?.length || 0) * 10, 0),
   };
 
-  const totalVideos = courses.reduce((sum, c) => sum + c.videos.length, 0);
-  const totalStudents = courses.reduce((sum, c) => sum + c.totalStudents, 0);
-  const paidCourses = courses.filter((c) => c.price > 0).length;
+  // Open new course modal
+  const openNewModal = () => {
+    setEditingCourse(null);
+    setFormData({
+      title: "",
+      description: "",
+      image: "",
+      instructor: "",
+      level: "beginner",
+      price: 0,
+      isPublished: false,
+      featured: false,
+      lessons: [],
+    });
+    setIsModalOpen(true);
+  };
+
+  // Open edit modal
+  const openEditModal = (course: Course) => {
+    setEditingCourse(course);
+    setFormData({ ...course });
+    setIsModalOpen(true);
+  };
+
+  // Image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const formDataImg = new FormData();
+      formDataImg.append("image", file);
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_KEY}`, {
+        method: "POST",
+        body: formDataImg,
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setFormData(prev => ({ ...prev, image: data.data.url }));
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Save course
+  const saveCourse = async () => {
+    if (!db || !formData.title) return;
+
+    try {
+      const courseData = {
+        title: formData.title,
+        description: formData.description,
+        image: formData.image,
+        instructor: formData.instructor || "Cô Hằng Khoa",
+        level: formData.level || "beginner",
+        price: Number(formData.price) || 0,
+        isPublished: formData.isPublished || false,
+        featured: formData.featured || false,
+        lessons: formData.lessons || [],
+        updatedAt: serverTimestamp(),
+      };
+
+      if (editingCourse) {
+        await updateDoc(doc(db, "courses", editingCourse.id), courseData);
+        setCourses(prev => prev.map(c => c.id === editingCourse.id ? { ...c, ...courseData, id: editingCourse.id } as Course : c));
+      } else {
+        const newDoc = await addDoc(collection(db, "courses"), {
+          ...courseData,
+          createdAt: serverTimestamp(),
+        });
+        setCourses(prev => [{
+          ...courseData,
+          id: newDoc.id,
+        } as Course, ...prev]);
+      }
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving course:", error);
+      alert("Có lỗi xảy ra khi lưu khóa học");
+    }
+  };
+
+  // Delete course
+  const deleteCourse = async (id: string) => {
+    if (!confirm("Bạn có chắc muốn xóa khóa học này?")) return;
+    
+    if (!db) return;
+    
+    try {
+      await deleteDoc(doc(db, "courses", id));
+      setCourses(prev => prev.filter(c => c.id !== id));
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
+  };
+
+  // Add lesson
+  const addLesson = () => {
+    const newLesson: Lesson = {
+      id: `lesson-${Date.now()}`,
+      title: "Bài học mới",
+      duration: "10:00",
+      videoUrl: "",
+      order: (formData.lessons?.length || 0) + 1,
+      isPublished: false,
+    };
+    setFormData(prev => ({
+      ...prev,
+      lessons: [...(prev.lessons || []), newLesson],
+    }));
+  };
+
+  // Update lesson
+  const updateLesson = (lessonId: string, field: keyof Lesson, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      lessons: prev.lessons?.map(l => l.id === lessonId ? { ...l, [field]: value } : l) || [],
+    }));
+  };
+
+  // Remove lesson
+  const removeLesson = (lessonId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      lessons: prev.lessons?.filter(l => l.id !== lessonId) || [],
+    }));
+  };
+
+  // Format price
+  const formatPrice = (price: number) => {
+    return price === 0 ? "Miễn phí" : `${price.toLocaleString("vi-VN")}đ`;
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 lg:p-10">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 size={32} className="animate-spin text-[#b45309]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div className="p-6 lg:p-10 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-serif text-[#1c1917]">Quản lý Khóa học</h1>
-          <p className="text-sm text-[#57534e] mt-1">
-            Quản lý video, khóa học và nội dung học tập
-          </p>
+          <h1 className="text-2xl font-bold text-[#1c1917]">Quản lý khóa học</h1>
+          <p className="text-[#57534e] mt-1">Tạo và quản lý khóa học video</p>
         </div>
         <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#b45309] text-white rounded-lg hover:bg-[#92400e] transition-colors text-sm font-medium"
+          onClick={openNewModal}
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#b45309] text-white rounded-xl font-medium hover:bg-[#92400e] transition-colors"
         >
           <Plus size={18} />
           Thêm khóa học
@@ -143,398 +277,345 @@ export default function CoursesAdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-lg border border-[#e7e5e4]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[#57534e] uppercase tracking-wider">Tổng khóa học</p>
-              <p className="text-2xl font-medium text-[#1c1917] mt-1">{courses.length}</p>
-            </div>
-            <div className="w-10 h-10 bg-[#b45309]/10 rounded-lg flex items-center justify-center">
-              <Play size={20} className="text-[#b45309]" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-[#e7e5e4]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[#57534e] uppercase tracking-wider">Tổng video</p>
-              <p className="text-2xl font-medium text-[#1c1917] mt-1">{totalVideos}</p>
-            </div>
-            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Clock size={20} className="text-blue-600" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Tổng khóa học", value: stats.total, icon: Play, color: "bg-blue-500" },
+          { label: "Đang công khai", value: stats.published, icon: CheckCircle2, color: "bg-green-500" },
+          { label: "Bản nháp", value: stats.draft, icon: XCircle, color: "bg-gray-500" },
+          { label: "Tổng học viên", value: stats.totalStudents, icon: Users, color: "bg-purple-500" },
+        ].map((stat, idx) => (
+          <div key={idx} className="bg-white rounded-xl p-4 border border-[#e7e5e4]">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center text-white`}>
+                <stat.icon size={20} />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-[#1c1917]">{stat.value}</p>
+                <p className="text-xs text-[#57534e]">{stat.label}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-[#e7e5e4]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[#57534e] uppercase tracking-wider">Học viên</p>
-              <p className="text-2xl font-medium text-[#1c1917] mt-1">{totalStudents}</p>
-            </div>
-            <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-              <Users size={20} className="text-green-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-[#e7e5e4]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[#57534e] uppercase tracking-wider">Khóa học trả phí</p>
-              <p className="text-2xl font-medium text-[#1c1917] mt-1">{paidCourses}</p>
-            </div>
-            <div className="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
-              <DollarSign size={20} className="text-yellow-600" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Filter & Search */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === "all"
-                ? "bg-[#1c1917] text-white"
-                : "bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]"
-            }`}
-          >
-            Tất cả
-          </button>
-          <button
-            onClick={() => setFilter("full")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === "full"
-                ? "bg-[#1c1917] text-white"
-                : "bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]"
-            }`}
-          >
-            Khóa học đầy đủ
-          </button>
-          <button
-            onClick={() => setFilter("tip")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === "tip"
-                ? "bg-[#1c1917] text-white"
-                : "bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]"
-            }`}
-          >
-            Tips & Tricks
-          </button>
-        </div>
-        <div className="flex-1 relative">
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#57534e]"
-          />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]" size={18} />
           <input
             type="text"
             placeholder="Tìm kiếm khóa học..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none text-sm"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
           />
+        </div>
+        <div className="flex gap-2">
+          {[
+            { id: "all", label: "Tất cả" },
+            { id: "published", label: "Công khai" },
+            { id: "draft", label: "Bản nháp" },
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id as typeof filter)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === f.id
+                  ? "bg-[#b45309] text-white"
+                  : "bg-white border border-[#e7e5e4] text-[#57534e] hover:border-[#b45309]"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Courses Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Course List */}
+      <div className="space-y-4">
         {filteredCourses.map((course) => (
-          <motion.div
-            key={course.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-lg border border-[#e7e5e4] overflow-hidden group"
-          >
-            {/* Thumbnail */}
-            <div className="relative aspect-video">
+          <div key={course.id} className="bg-white rounded-xl border border-[#e7e5e4] overflow-hidden">
+            {/* Course Header */}
+            <div className="p-4 flex items-start gap-4">
               <img
-                src={course.thumbnail}
+                src={course.image || "https://via.placeholder.com/160x90"}
                 alt={course.title}
-                className="w-full h-full object-cover"
+                className="w-32 h-20 object-cover rounded-lg shrink-0"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${LEVELS.find(l => l.value === course.level)?.color}`}>
+                        {LEVELS.find(l => l.value === course.level)?.label}
+                      </span>
+                      {course.isPublished ? (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Công khai</span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">Bản nháp</span>
+                      )}
+                      {course.featured && (
+                        <span className="px-2 py-0.5 bg-[#b45309]/10 text-[#b45309] rounded text-xs">Nổi bật</span>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-[#1c1917]">{course.title}</h3>
+                    <p className="text-sm text-[#57534e] line-clamp-1">{course.description}</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => openEditModal(course)}
+                      className="p-2 text-[#57534e] hover:bg-[#f5f5f4] rounded-lg transition-colors"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => deleteCourse(course.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 mt-2 text-sm text-[#57534e]">
+                  <span className="flex items-center gap-1">
+                    <Play size={14} />
+                    {course.lessons?.length || 0} bài học
+                  </span>
+                  <span className="font-medium text-[#b45309]">{formatPrice(course.price)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Expandable Lessons */}
+            {course.lessons && course.lessons.length > 0 && (
+              <div className="border-t border-[#e7e5e4]">
                 <button
-                  onClick={() => setSelectedCourse(course)}
-                  className="p-3 bg-white rounded-full hover:bg-[#b45309] hover:text-white transition-colors"
+                  onClick={() => setExpandedCourse(expandedCourse === course.id ? null : course.id)}
+                  className="w-full px-4 py-2 flex items-center justify-between text-sm text-[#57534e] hover:bg-[#f5f5f4]"
                 >
-                  <Play size={24} />
+                  <span>Danh sách bài học ({course.lessons.length})</span>
+                  {expandedCourse === course.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
+                <AnimatePresence>
+                  {expandedCourse === course.id && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 pb-4 space-y-2">
+                        {course.lessons.map((lesson, idx) => (
+                          <div key={lesson.id} className="flex items-center gap-3 p-2 bg-[#f5f5f4] rounded-lg text-sm">
+                            <span className="w-6 h-6 bg-[#b45309] text-white rounded flex items-center justify-center text-xs">
+                              {lesson.order}
+                            </span>
+                            <span className="flex-1">{lesson.title}</span>
+                            <span className="text-[#a8a29e]">{lesson.duration}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="absolute top-3 left-3">
-                <span className={`px-2 py-1 text-xs font-medium rounded ${levelLabels[course.level].color}`}>
-                  {levelLabels[course.level].label}
-                </span>
-              </div>
-              <div className="absolute top-3 right-3">
-                <span className={`px-2 py-1 text-xs font-medium rounded ${
-                  course.type === "tip" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                }`}>
-                  {course.type === "tip" ? "Tip" : "Khóa học"}
-                </span>
-              </div>
-              {!course.isPublished && (
-                <div className="absolute bottom-3 left-3">
-                  <span className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-600">
-                    Nháp
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="p-4">
-              <h3 className="font-medium text-[#1c1917] mb-2 line-clamp-2">
-                {course.title}
-              </h3>
-              <p className="text-sm text-[#57534e] mb-3 line-clamp-2">
-                {course.description}
-              </p>
-
-              <div className="flex items-center gap-4 text-xs text-[#57534e] mb-4">
-                <span className="flex items-center gap-1">
-                  <Play size={12} />
-                  {course.videos.length} video
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users size={12} />
-                  {course.totalStudents} học viên
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock size={12} />
-                  {course.videos.reduce((sum, v) => {
-                    const [min] = v.duration.split(":").map(Number);
-                    return sum + min;
-                  }, 0)} phút
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-[#e7e5e4]">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[#1c1917]">
-                    {course.price === 0 ? "Miễn phí" : `${(course.price / 1000).toFixed(0)}K`}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleTogglePublish(course.id)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      course.isPublished
-                        ? "text-green-600 hover:bg-green-50"
-                        : "text-gray-400 hover:bg-gray-50"
-                    }`}
-                    title={course.isPublished ? "Đang công khai" : "Đang ẩn"}
-                  >
-                    {course.isPublished ? <Unlock size={16} /> : <Lock size={16} />}
-                  </button>
-                  <button
-                    onClick={() => setSelectedCourse(course)}
-                    className="p-2 text-[#57534e] hover:bg-[#f5f5f4] rounded-lg transition-colors"
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCourse(course.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            )}
+          </div>
         ))}
       </div>
 
-      {/* Course Detail Modal */}
+      {/* Course Modal */}
       <AnimatePresence>
-        {selectedCourse && (
+        {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedCourse(null)}
+            onClick={() => setIsModalOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-[#e7e5e4]">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-xl font-medium text-[#1c1917]">{selectedCourse.title}</h2>
-                    <p className="text-sm text-[#57534e] mt-1">{selectedCourse.videos.length} video • {selectedCourse.totalStudents} học viên</p>
-                  </div>
-                  <button
-                    onClick={() => setSelectedCourse(null)}
-                    className="p-2 hover:bg-[#f5f5f4] rounded-lg transition-colors"
-                  >
-                    <XCircle size={20} />
-                  </button>
-                </div>
+              <div className="p-6 border-b border-[#e7e5e4] flex items-center justify-between">
+                <h2 className="text-lg font-bold text-[#1c1917]">
+                  {editingCourse ? "Sửa khóa học" : "Thêm khóa học mới"}
+                </h2>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-[#f5f5f4] rounded-lg">
+                  <X size={20} />
+                </button>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="space-y-4">
-                  {selectedCourse.videos.map((video, index) => (
-                    <div
-                      key={video.id}
-                      className="flex items-center gap-4 p-3 bg-[#f5f5f4] rounded-lg"
-                    >
-                      <div className="w-8 h-8 bg-[#b45309] text-white rounded-full flex items-center justify-center text-sm font-medium">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-[#1c1917] text-sm">{video.title}</h4>
-                        <div className="flex items-center gap-3 text-xs text-[#57534e] mt-1">
-                          <span>ID: {video.youtubeId}</span>
-                          <span>•</span>
-                          <span>{video.duration}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {video.isPublished ? (
-                          <CheckCircle2 size={16} className="text-green-600" />
-                        ) : (
-                          <Lock size={16} className="text-gray-400" />
-                        )}
-                      </div>
+
+              <div className="p-6 space-y-6">
+                {/* Image */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1c1917]">Hình ảnh khóa học</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-24 h-16 bg-[#f5f5f4] rounded-lg overflow-hidden flex items-center justify-center">
+                      {formData.image ? (
+                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <Play size={24} className="text-[#a8a29e]" />
+                      )}
                     </div>
-                  ))}
+                    <label className="flex items-center gap-2 px-4 py-2 bg-[#f5f5f4] rounded-lg cursor-pointer hover:bg-[#e7e5e4] transition-colors">
+                      {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                      <span className="text-sm">{uploadingImage ? "Đang upload..." : "Chọn ảnh"}</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                    </label>
+                  </div>
                 </div>
 
-                {/* Add Video Form */}
-                <div className="mt-6 pt-6 border-t border-[#e7e5e4]">
-                  <h3 className="font-medium text-[#1c1917] mb-4">Thêm video mới</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Basic Info */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-[#1c1917]">Tên khóa học <span className="text-red-500">*</span></label>
                     <input
                       type="text"
-                      placeholder="Tiêu đề video"
-                      className="px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="YouTube ID (vd: dQw4w9WgXcQ)"
-                      className="px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Thời lượng (vd: 10:30)"
-                      className="px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
+                      value={formData.title || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                      placeholder="Ví dụ: Thêu Cơ Bản cho Người Mới"
                     />
                   </div>
-                  <button className="mt-3 px-4 py-2 bg-[#b45309] text-white rounded-lg text-sm hover:bg-[#92400e] transition-colors">
-                    Thêm video
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Add Course Modal */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={() => setIsAddModalOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg max-w-lg w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6 border-b border-[#e7e5e4]">
-                <h2 className="text-lg font-medium text-[#1c1917]">Thêm khóa học mới</h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#1c1917] mb-2">Tiêu đề</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                    placeholder="Vd: Thêu Cơ Bản: Hoa Cúc"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#1c1917] mb-2">Mô tả</label>
-                  <textarea
-                    rows={3}
-                    className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                    placeholder="Mô tả ngắn về khóa học..."
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#1c1917] mb-2">Loại</label>
-                    <select className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none">
-                      <option value="full">Khóa học đầy đủ</option>
-                      <option value="tip">Tips & Tricks</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#1c1917] mb-2">Cấp độ</label>
-                    <select className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none">
-                      <option value="beginner">Cơ bản</option>
-                      <option value="intermediate">Trung cấp</option>
-                      <option value="advanced">Nâng cao</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#1c1917] mb-2">Giá (VNĐ)</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                      placeholder="0 = Miễn phí"
+                    <label className="text-sm font-medium text-[#1c1917]">Mô tả</label>
+                    <textarea
+                      value={formData.description || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none resize-none"
+                      placeholder="Mô tả ngắn về khóa học..."
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-[#1c1917]">Cấp độ</label>
+                      <select
+                        value={formData.level || "beginner"}
+                        onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value as Course["level"] }))}
+                        className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                      >
+                        {LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-[#1c1917]">Giá (VNĐ)</label>
+                      <input
+                        type="number"
+                        value={formData.price || ""}
+                        onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+                        className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
+                        placeholder="0 = Miễn phí"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-[#1c1917] mb-2">Giảng viên</label>
+                    <label className="text-sm font-medium text-[#1c1917]">Giảng viên</label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
+                      value={formData.instructor || ""}
+                      onChange={(e) => setFormData(prev => ({ ...prev, instructor: e.target.value }))}
+                      className="w-full px-4 py-2 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none"
                       placeholder="Tên giảng viên"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#1c1917] mb-2">Link thumbnail</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
-                    placeholder="https://..."
-                  />
-                  <p className="text-xs text-[#57534e] mt-1">
-                    💡 Tip: Upload ảnh lên imgbb.com rồi copy link trực tiếp
-                  </p>
+
+                {/* Status */}
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isPublished || false}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
+                      className="w-4 h-4 rounded border-[#e7e5e4] text-[#b45309]"
+                    />
+                    <span className="text-sm text-[#1c1917]">Công khai</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.featured || false}
+                      onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                      className="w-4 h-4 rounded border-[#e7e5e4] text-[#b45309]"
+                    />
+                    <span className="text-sm text-[#1c1917]">Khóa học nổi bật</span>
+                  </label>
                 </div>
-              </div>
-              <div className="p-6 border-t border-[#e7e5e4] flex justify-end gap-3">
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-[#e7e5e4] rounded-lg text-sm hover:bg-[#f5f5f4] transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 bg-[#b45309] text-white rounded-lg text-sm hover:bg-[#92400e] transition-colors"
-                >
-                  Tạo khóa học
-                </button>
+
+                {/* Lessons */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-[#1c1917]">Danh sách bài học</label>
+                    <button
+                      onClick={addLesson}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-[#b45309] bg-[#b45309]/10 rounded-lg hover:bg-[#b45309]/20 transition-colors"
+                    >
+                      <Plus size={16} />
+                      Thêm bài học
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {formData.lessons?.map((lesson, idx) => (
+                      <div key={lesson.id} className="p-3 bg-[#f5f5f4] rounded-lg space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-[#b45309] text-white rounded flex items-center justify-center text-xs">{lesson.order}</span>
+                          <input
+                            type="text"
+                            value={lesson.title}
+                            onChange={(e) => updateLesson(lesson.id, "title", e.target.value)}
+                            className="flex-1 px-3 py-1.5 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
+                            placeholder="Tên bài học"
+                          />
+                          <button onClick={() => removeLesson(lesson.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={lesson.duration}
+                            onChange={(e) => updateLesson(lesson.id, "duration", e.target.value)}
+                            className="w-24 px-3 py-1.5 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
+                            placeholder="10:00"
+                          />
+                          <input
+                            type="text"
+                            value={lesson.videoUrl}
+                            onChange={(e) => updateLesson(lesson.id, "videoUrl", e.target.value)}
+                            className="flex-1 px-3 py-1.5 border border-[#e7e5e4] rounded-lg text-sm focus:border-[#b45309] focus:outline-none"
+                            placeholder="Link video (YouTube hoặc URL trực tiếp)"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-4 border-t border-[#e7e5e4]">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-4 py-2 border border-[#e7e5e4] text-[#1c1917] rounded-lg hover:bg-[#f5f5f4] transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={saveCourse}
+                    disabled={uploadingImage || !formData.title}
+                    className="flex-1 px-4 py-2 bg-[#b45309] text-white rounded-lg hover:bg-[#92400e] transition-colors disabled:opacity-50"
+                  >
+                    {editingCourse ? "Lưu thay đổi" : "Tạo khóa học"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
