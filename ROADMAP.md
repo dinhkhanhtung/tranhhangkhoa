@@ -38,13 +38,14 @@
 
 ### 🟡 GIAI ĐOẠN 1: BÁN HÀNG HOÀN CHỈNH (2 tuần) - ĐANG THỰC HIỆN
 
-#### 1.1 Thanh Toán Tích Hợp ⭐⭐⭐⭐⭐
-- [ ] Tích hợp VNPay (QR Code + thẻ)
-- [ ] Tích hợp Momo Pay
-- [ ] Chuyển khoản ngân hàng (tự động match)
-- [ ] COD (thanh toán khi nhận)
-- [ ] Trang thanh toán checkout
-- [ ] Chọn địa chỉ giao hàng
+#### 1.1 Thanh Toán Tích Hợp ⭐⭐⭐⭐⭐ ✅
+- [x] Tích hợp VNPay (QR Code + thẻ) - *Demo mode, cần API key thật*
+- [x] Tích hợp Momo Pay - *Demo mode, cần API key thật*
+- [x] Chuyển khoản ngân hàng (manual)
+- [x] COD (thanh toán khi nhận)
+- [x] Trang thanh toán checkout
+- [x] Trang kết quả thanh toán
+- [ ] Chọn địa chỉ giao hàng (nhiều địa chỉ)
 - [ ] Mã giảm giá/ưu đãi
 
 #### 1.2 Quản Lý Đơn Hàng ⭐⭐⭐⭐⭐

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,8 +9,10 @@ import { motion } from "framer-motion";
 import {
   User, ShoppingBag, Heart, BookOpen, Settings,
   LogOut, MapPin, Phone, Mail, Camera, ChevronRight,
-  Star, Clock, Award
+  Star, Clock, Award, Package, Eye
 } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, query, where, orderBy, getDocs, Timestamp } from "firebase/firestore";
 
 const tabs = [
   { id: "profile", label: "Hồ sơ", icon: User },
@@ -44,22 +46,30 @@ const myCourses = [
   },
 ];
 
-const myOrders = [
-  {
-    id: "DH001",
-    date: "15/03/2024",
-    status: "Đã giao",
-    total: 11500000,
-    items: [{ name: "Túi Xách Da Thật", qty: 1, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=100&q=80" }],
-  },
-  {
-    id: "DH002",
-    date: "10/03/2024",
-    status: "Đang giao",
-    total: 650000,
-    items: [{ name: "Tranh Thêu Quạt Giấy", qty: 1, image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=100&q=80" }],
-  },
-];
+// Real order from Firebase
+interface Order {
+  id: string;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string;
+    address: string;
+  };
+  items: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+  }>;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  paymentMethod: string;
+  status: string;
+  paymentStatus?: string;
+  createdAt: Timestamp;
+}
 
 export default function AccountPage() {
   const sessionData = useSession();
@@ -67,6 +77,41 @@ export default function AccountPage() {
   const status = sessionData?.status;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  // Fetch orders from Firebase
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!db || !session?.user?.email) return;
+      
+      setOrdersLoading(true);
+      try {
+        const ordersRef = collection(db, "orders");
+        const q = query(
+          ordersRef,
+          where("customer.email", "==", session.user.email),
+          orderBy("createdAt", "desc")
+        );
+        const snapshot = await getDocs(q);
+        
+        const ordersData: Order[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Order[];
+        
+        setOrders(ordersData);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    if (activeTab === "orders") {
+      fetchOrders();
+    }
+  }, [activeTab, session?.user?.email]);
 
   if (status === "loading" || typeof window === "undefined") {
     return (
@@ -274,56 +319,104 @@ export default function AccountPage() {
                 className="space-y-4"
               >
                 <h2 className="text-lg font-medium text-[#1c1917] mb-4">Đơn hàng của tôi</h2>
-                {myOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="bg-white rounded-lg border border-[#e7e5e4] p-4"
-                  >
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e7e5e4]">
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium text-[#1c1917]">{order.id}</span>
-                        <span className="text-xs text-[#57534e]">{order.date}</span>
-                      </div>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full ${
-                          order.status === "Đã giao"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16">
-                        <Image
-                          src={order.items[0].image}
-                          alt={order.items[0].name}
-                          fill
-                          className="rounded-lg object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-[#1c1917]">{order.items[0].name}</p>
-                        <p className="text-xs text-[#57534e]">x{order.items[0].qty}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-[#b45309]">
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(order.total)}
-                        </p>
-                        <Link
-                          href={`/don-hang/${order.id}`}
-                          className="text-xs text-[#b45309] hover:underline"
-                        >
-                          Xem chi tiết
-                        </Link>
-                      </div>
-                    </div>
+                
+                {ordersLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin w-8 h-8 border-2 border-[#b45309] border-t-transparent rounded-full"></div>
                   </div>
-                ))}
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-12 bg-white rounded-lg border border-[#e7e5e4]">
+                    <Package size={48} className="mx-auto text-[#e7e5e4] mb-4" />
+                    <h3 className="text-lg font-medium text-[#1c1917] mb-2">
+                      Chưa có đơn hàng
+                    </h3>
+                    <p className="text-sm text-[#57534e] mb-4">
+                      Bạn chưa có đơn hàng nào. Hãy mua sắm ngay!
+                    </p>
+                    <Link
+                      href="/san-pham"
+                      className="inline-block px-6 py-2.5 bg-[#b45309] text-white rounded-lg text-sm hover:bg-[#92400e] transition-colors"
+                    >
+                      Mua sắm ngay
+                    </Link>
+                  </div>
+                ) : (
+                  orders.map((order: Order) => (
+                    <div
+                      key={order.id}
+                      className="bg-white rounded-lg border border-[#e7e5e4] p-4"
+                    >
+                      <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e7e5e4]">
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm font-medium text-[#1c1917]">
+                            HK{order.id.substring(0, 6).toUpperCase()}
+                          </span>
+                          <span className="text-xs text-[#57534e]">
+                            {order.createdAt?.toDate?.() 
+                              ? order.createdAt.toDate().toLocaleDateString("vi-VN")
+                              : new Date().toLocaleDateString("vi-VN")
+                            }
+                          </span>
+                        </div>
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${
+                            order.status === "Đã giao"
+                              ? "bg-green-100 text-green-700"
+                              : order.status === "Đã thanh toán"
+                              ? "bg-blue-100 text-blue-700"
+                              : order.status === "Chờ thanh toán"
+                              ? "bg-orange-100 text-orange-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-16 h-16">
+                          <Image
+                            src={order.items?.[0]?.image || "https://via.placeholder.com/100"}
+                            alt={order.items?.[0]?.name || "Sản phẩm"}
+                            fill
+                            className="rounded-lg object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-[#1c1917]">
+                            {order.items?.[0]?.name || "Sản phẩm"}
+                          </p>
+                          <p className="text-xs text-[#57534e]">
+                            x{order.items?.[0]?.quantity || 1}
+                            {order.items && order.items.length > 1 && (
+                              <span className="ml-1">+{order.items.length - 1} sản phẩm khác</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-[#57534e] mt-1">
+                            {order.paymentMethod === "VNPAY" && "Thanh toán VNPay"}
+                            {order.paymentMethod === "MOMO" && "Thanh toán Momo"}
+                            {order.paymentMethod === "COD" && "Thanh toán khi nhận"}
+                            {order.paymentMethod === "BANK" && "Chuyển khoản"}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-[#b45309]">
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(order.total)}
+                          </p>
+                          <Link
+                            href={`/don-hang/${order.id}`}
+                            className="text-xs text-[#b45309] hover:underline inline-flex items-center gap-1 mt-1"
+                          >
+                            <Eye size={12} />
+                            Xem chi tiết
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </motion.div>
             )}
 
