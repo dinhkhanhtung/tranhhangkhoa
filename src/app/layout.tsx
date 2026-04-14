@@ -25,9 +25,7 @@ export const metadata: Metadata = {
   description: "Kế thừa tinh hoa nghề thêu truyền thống, mang đến những tác phẩm nghệ thuật độc đáo và ý nghĩa. Tranh thêu tay, phụ kiện thêu, khóa học thêu online.",
 };
 
-import { CartProvider } from "@/context/CartContext";
-import { WebsiteProvider } from "@/context/WebsiteContext";
-import { SessionProvider } from "next-auth/react";
+import { Providers } from "@/components/Providers";
 
 export default function RootLayout({
   children,
@@ -37,19 +35,15 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body className={`${beVietnamPro.variable} ${notoSans.variable} font-sans antialiased pt-[80px] lg:pt-[90px]`} suppressHydrationWarning>
-        <SessionProvider>
-          <WebsiteProvider>
-            <CartProvider>
-              <AnnouncementBar />
-              <Header />
-              <main className="min-h-screen">{children}</main>
-              <Footer />
-              <BackToTop />
-              <MobileBottomBar />
-              <FloatingContactBar />
-            </CartProvider>
-          </WebsiteProvider>
-        </SessionProvider>
+        <Providers>
+          <AnnouncementBar />
+          <Header />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+          <BackToTop />
+          <MobileBottomBar />
+          <FloatingContactBar />
+        </Providers>
       </body>
     </html>
   );
