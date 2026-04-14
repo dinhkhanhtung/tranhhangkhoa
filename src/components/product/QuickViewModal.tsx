@@ -64,20 +64,13 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-4 md:inset-10 lg:inset-20 bg-white z-50 overflow-auto"
           >
-            {/* Header Bar with Actions */}
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-[#e7e5e4]">
-              <button
-                className="w-10 h-10 flex items-center justify-center border border-[#e7e5e4] rounded-lg hover:border-[#b45309] hover:text-[#b45309] transition-colors"
-              >
-                <Heart size={20} />
-              </button>
-              <button
-                onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center hover:bg-[#f5f5f4] transition-colors rounded-lg"
-              >
-                <X size={24} />
-              </button>
-            </div>
+            {/* Close Button Only */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white shadow-sm border border-[#e7e5e4] transition-all rounded-lg"
+            >
+              <X size={24} />
+            </button>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
               {/* Left: Image Gallery */}
@@ -89,6 +82,14 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                     fill
                     className="object-contain"
                   />
+                  
+                  {/* Wishlist Button - Overlay on Image */}
+                  <button
+                    className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-white shadow-md rounded-full hover:scale-110 hover:shadow-lg transition-all z-10"
+                    title="Thêm vào yêu thích"
+                  >
+                    <Heart size={20} className="text-[#1c1917]" />
+                  </button>
                 </div>
                 
                 {/* Navigation Arrows */}
@@ -126,7 +127,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
               </div>
 
               {/* Right: Product Info */}
-              <div className="space-y-6 p-6 lg:p-8 pt-20 lg:pt-24">
+              <div className="space-y-6 p-6 lg:p-8 pt-6 lg:pt-8">
                 <div>
                   <p className="text-sm text-[#b45309] mb-1">{product.category}</p>
                   <h2 className="text-2xl font-serif text-[#1c1917]">{product.name}</h2>
