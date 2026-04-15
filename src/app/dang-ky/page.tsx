@@ -52,7 +52,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffbf5] pt-[140px] lg:pt-[160px] pb-12">
+    <div className="min-h-screen bg-[#fffbf5] pt-[100px] lg:pt-[120px] pb-12">
       <div className="mx-auto max-w-md px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
