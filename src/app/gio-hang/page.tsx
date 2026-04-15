@@ -46,7 +46,7 @@ export default function CartPage() {
       {/* Header */}
       <div className="bg-white border-b border-[#e7e5e4]">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-2xl md:text-3xl font-serif text-[#1c1917] text-center">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-serif text-[#1c1917] text-center">
             Giỏ Hàng
           </h1>
         </div>

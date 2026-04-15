@@ -116,7 +116,7 @@ function ProductsContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-serif text-[#1c1917] text-center">Tất Cả Sản Phẩm</h1>
+            <h1 className="text-2xl sm:text-3xl font-serif text-[#1c1917] text-center">Tất Cả Sản Phẩm</h1>
             <p className="mt-2 text-[#57534e] text-center max-w-xl mx-auto">
               Khám phá bộ sưu tập tranh thêu tay và phụ kiện thêu tinh tế
             </p>

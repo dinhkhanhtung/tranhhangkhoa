@@ -235,7 +235,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               
               <div>
                 <p className="text-sm text-[#b45309] mb-1.5">{product.category}</p>
-                <h1 className="text-2xl lg:text-3xl font-serif text-[#1c1917] mb-3 pr-12">{product.name}</h1>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif text-[#1c1917] mb-3 pr-12">{product.name}</h1>
                 
                 {/* Rating + Sold */}
                 <div className="flex items-center gap-2 mb-3 flex-wrap">

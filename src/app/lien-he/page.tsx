@@ -14,7 +14,7 @@ export default function ContactPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-bold text-foreground">Liên hệ</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Liên hệ</h1>
             <p className="mt-2 text-muted-foreground">
               Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ với chúng tôi qua các kênh sau.
             </p>
@@ -31,7 +31,7 @@ export default function ContactPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl font-bold text-foreground">Thông tin liên hệ</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Thông tin liên hệ</h2>
             <p className="mt-4 text-muted-foreground">
               Bạn có thể liên hệ với chúng tôi qua điện thoại, email hoặc đến trực tiếp
               tại xưởng thêu. Chúng tôi sẽ phản hồi trong vòng 24 giờ.
@@ -93,7 +93,7 @@ export default function ContactPage() {
             transition={{ duration: 0.6 }}
             className="rounded-lg border border-border bg-white p-8"
           >
-            <h2 className="text-2xl font-bold text-foreground">Gửi tin nhắn</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Gửi tin nhắn</h2>
             <p className="mt-2 text-muted-foreground">
               Điền thông tin vào form bên dưới, chúng tôi sẽ liên hệ lại sớm nhất.
             </p>

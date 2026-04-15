@@ -174,7 +174,7 @@ export default function AccountPage() {
 
   if (status === "loading" || typeof window === "undefined") {
     return (
-      <div className="min-h-screen bg-[#fffbf5] pt-[140px] lg:pt-[160px] flex items-center justify-center">
+      <div className="min-h-screen bg-[#fffbf5] pt-[100px] lg:pt-[120px] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-[#b45309] border-t-transparent rounded-full"></div>
       </div>
     );
@@ -192,7 +192,7 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffbf5] pt-[140px] lg:pt-[160px] pb-12">
+    <div className="min-h-screen bg-[#fffbf5] pt-[100px] lg:pt-[120px] pb-12">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         {/* Page Title */}
         <div className="mb-8">
