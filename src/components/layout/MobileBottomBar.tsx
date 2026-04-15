@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, ShoppingBag, BookOpen, Search, User } from "lucide-react";
+import { Home, ShoppingBag, BookOpen, Store, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 const menuItems = [
   { href: "/", label: "Trang chủ", icon: Home },
-  { href: "/san-pham", label: "Sản phẩm", icon: Search },
+  { href: "/san-pham", label: "Shop", icon: Store },
   { href: "/gio-hang", label: "Giỏ hàng", icon: ShoppingBag, badge: true },
   { href: "/bai-viet", label: "Tin tức", icon: BookOpen },
 ];
