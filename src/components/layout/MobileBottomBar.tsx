@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, ShoppingBag, BookOpen, Store, User } from "lucide-react";
+import { Home, ShoppingBag, BookOpen, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 const menuItems = [
@@ -78,34 +78,6 @@ export default function MobileBottomBar() {
               </Link>
             );
           })}
-          
-          {/* Account Button */}
-          {(() => {
-            const isActive = pathname === "/tai-khoan" || pathname?.startsWith("/tai-khoan/");
-            return (
-              <Link
-                href="/tai-khoan"
-                className="flex flex-col items-center justify-center flex-1 h-full relative group active:scale-90 transition-transform duration-200"
-              >
-                <div className="relative p-1">
-                  <User 
-                    size={22} 
-                    strokeWidth={isActive ? 2.5 : 2}
-                    className={`transition-all duration-300 ${isActive ? "text-[#b45309] scale-110" : "text-[#57534e]"}`} 
-                  />
-                </div>
-                <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-300 ${isActive ? "text-[#b45309]" : "text-[#57534e]"}`}>
-                  Tài khoản
-                </span>
-                {isActive && (
-                  <motion.div 
-                    layoutId="activeTab"
-                    className="absolute bottom-1 w-1 h-1 bg-[#b45309] rounded-full" 
-                  />
-                )}
-              </Link>
-            );
-          })()}
         </div>
       </nav>
     </>

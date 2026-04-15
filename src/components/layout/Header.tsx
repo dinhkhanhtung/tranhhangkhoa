@@ -91,11 +91,11 @@ export default function Header() {
                 {settings.brand.logo ? (
                   <img src={settings.brand.logo} alt={settings.brand.name} className="h-8 lg:h-10 w-auto object-contain" />
                 ) : (
-                  <div className="flex flex-col items-center max-w-[180px] lg:max-w-none">
-                    <div className="text-lg lg:text-2xl font-bold text-[#1c1917] tracking-wider uppercase leading-tight">
+                  <div className="flex flex-col items-center max-w-[140px] sm:max-w-[180px] lg:max-w-none">
+                    <div className="text-sm sm:text-lg lg:text-2xl font-bold text-[#1c1917] tracking-wider uppercase leading-tight whitespace-nowrap">
                       {settings.brand.name}
                     </div>
-                    <div className="text-[8px] lg:text-xs tracking-[0.15em] lg:tracking-[0.4em] text-[#57534e] uppercase font-medium mt-0.5 whitespace-nowrap lg:whitespace-normal">
+                    <div className="text-[7px] sm:text-[8px] lg:text-xs tracking-[0.1em] sm:tracking-[0.15em] lg:tracking-[0.4em] text-[#57534e] uppercase font-medium mt-0.5 whitespace-nowrap">
                       {settings.brand.slogan}
                     </div>
                   </div>

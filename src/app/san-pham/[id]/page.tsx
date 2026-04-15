@@ -434,19 +434,19 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
 
               {/* Shipping & Returns - Horizontal */}
-              <div className="flex flex-wrap items-center gap-2 text-sm pt-2">
-                <div className="flex items-center gap-1.5 text-green-600">
-                  <Truck size={14} />
+              <div className="flex flex-nowrap items-center gap-1 sm:gap-2 text-xs sm:text-sm pt-2 overflow-x-auto">
+                <div className="flex items-center gap-1 text-green-600 whitespace-nowrap">
+                  <Truck size={12} className="sm:w-[14px] sm:h-[14px]" />
                   <span>Giao 2-3 ngày</span>
                 </div>
-                <span className="text-[#e7e5e4]">|</span>
-                <div className="flex items-center gap-1.5 text-[#57534e]">
-                  <RefreshCw size={14} />
+                <span className="text-[#e7e5e4] hidden sm:inline">|</span>
+                <div className="flex items-center gap-1 text-[#57534e] whitespace-nowrap">
+                  <RefreshCw size={12} className="sm:w-[14px] sm:h-[14px]" />
                   <span>Đổi trả 30 ngày</span>
                 </div>
-                <span className="text-[#e7e5e4]">|</span>
-                <div className="flex items-center gap-1.5 text-[#57534e]">
-                  <Shield size={14} />
+                <span className="text-[#e7e5e4] hidden sm:inline">|</span>
+                <div className="flex items-center gap-1 text-[#57534e] whitespace-nowrap">
+                  <Shield size={12} className="sm:w-[14px] sm:h-[14px]" />
                   <span>Hoàn tiền</span>
                 </div>
               </div>

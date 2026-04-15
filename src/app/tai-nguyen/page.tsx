@@ -163,11 +163,11 @@ export default function ResourcesPage() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-nowrap gap-2 sm:gap-3 overflow-x-auto pb-1">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none bg-white text-sm"
+                className="px-3 sm:px-4 py-2.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none bg-white text-sm whitespace-nowrap"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -177,16 +177,16 @@ export default function ResourcesPage() {
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="px-4 py-2.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none bg-white text-sm"
+                className="px-3 sm:px-4 py-2.5 border border-[#e7e5e4] rounded-lg focus:border-[#b45309] focus:outline-none bg-white text-sm whitespace-nowrap"
               >
                 {difficulties.map((diff) => (
                   <option key={diff.value} value={diff.value}>{diff.label}</option>
                 ))}
               </select>
 
-              <button className="flex items-center gap-2 px-4 py-2.5 border border-[#e7e5e4] rounded-lg hover:bg-[#f5f5f4] transition-colors lg:hidden">
+              <button className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 border border-[#e7e5e4] rounded-lg hover:bg-[#f5f5f4] transition-colors whitespace-nowrap lg:hidden">
                 <Filter size={18} />
-                Lọc
+                <span className="hidden sm:inline">Lọc</span>
               </button>
             </div>
           </div>
