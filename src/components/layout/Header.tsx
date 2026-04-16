@@ -191,7 +191,7 @@ export default function Header() {
                           </div>
                           {/* Right Columns */}
                           <div className="p-10 grid grid-cols-3 gap-12 min-w-[600px] bg-white">
-                            {link.megaMenu.columns.map((column: {title: string, items: string[]}) => (
+                            {link.megaMenu?.columns?.map((column: {title: string, items: string[]}) => (
                               <div key={column.title}>
                                 <h4 className="text-[#1c1917] text-[11px] font-bold tracking-[0.2em] uppercase mb-6 border-l-2 border-[#b45309] pl-3">
                                   {column.title}
