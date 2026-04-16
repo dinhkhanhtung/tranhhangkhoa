@@ -39,6 +39,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-noto-sans), sans-serif;
+    line-height: 1.6;
   }
   
   h1, h2, h3, h4, h5, h6, .font-serif {
@@ -50,8 +51,23 @@
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
   }
-  
+
   .transition-standard {
     @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Press feedback for buttons */
+  .press-feedback {
+    @apply active:scale-95 active:opacity-90 transition-transform transition-opacity duration-150 ease-out;
+  }
+
+  /* Hover lift effect for cards */
+  .hover-lift {
+    @apply hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-out;
+  }
+
+  /* Smooth hover for links */
+  .hover-smooth {
+    @apply hover:text-[#b45309] transition-colors duration-200 ease-out;
   }
 }

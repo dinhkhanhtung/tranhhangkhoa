@@ -150,7 +150,7 @@ export default function Header() {
               >
                 <Link
                   href={link.href}
-                  className="flex items-center space-x-1.5 text-[13px] font-semibold text-[#1c1917] hover:text-[#b45309] transition-colors uppercase tracking-wide"
+                  className="flex items-center space-x-1.5 text-[13px] font-semibold text-[#1c1917] hover:text-[#b45309] transition-colors uppercase tracking-wide press-feedback"
                 >
                   <span>{link.label}</span>
                   {link.megaMenu && <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />}

@@ -422,9 +422,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
                 
                 {/* Add to Cart Button */}
-                <button 
+                <button
                   onClick={handleAddToCart}
-                  className={`w-full py-3.5 px-6 font-medium tracking-wide transition-all text-sm flex items-center justify-center gap-2 rounded-lg ${
+                  className={`w-full py-3.5 px-6 font-medium tracking-wide transition-all text-sm flex items-center justify-center gap-2 rounded-lg press-feedback ${
                     isAdded ? "bg-green-600 text-white" : "bg-[#b45309] text-white hover:bg-[#92400e]"
                   }`}
                 >

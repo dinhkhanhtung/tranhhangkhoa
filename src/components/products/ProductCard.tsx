@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="group relative"
+      className="group relative hover-lift"
     >
       <Link href={`/san-pham/${product.id}`}>
         <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
@@ -46,7 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               whileHover={{ scale: 1, opacity: 1 }}
-              className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-foreground shadow-lg"
+              className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-foreground shadow-lg press-feedback"
             >
               <Eye className="h-4 w-4" />
               Xem nhanh
@@ -57,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-xs text-muted-foreground uppercase tracking-wide">
             {product.category}
           </p>
-          <h3 className="text-sm font-medium text-foreground line-clamp-2">
+          <h3 className="text-sm font-medium text-foreground line-clamp-2 hover:text-[#b45309] transition-colors">
             {product.name}
           </h3>
           <p className="text-sm font-semibold text-primary">
