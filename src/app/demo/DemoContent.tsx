@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { IndustryType, getIndustryTheme, IndustryTheme } from "@/lib/industry-themes";
 import { WebsiteSettings } from "@/context/WebsiteContext";
 import { IndustryHero } from "@/components/industry-layouts/HeroLayouts";
+import { IndustryProductGrid } from "@/components/industry-layouts/ProductGridLayouts";
 
 // Demo data cho từng ngành
 const demoData: Record<IndustryType, { brandName: string; slogan: string; products: any[] }> = {
@@ -292,60 +293,20 @@ export default function DemoContent() {
         onCtaClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}
       />
 
-      {/* Products */}
+      {/* Dynamic Product Grid - Thay đổi theo ngành */}
       <section className="py-12 max-w-7xl mx-auto px-4">
         <h3 
           className="text-xl font-bold mb-6 text-center"
           style={{ color: theme.colors.text.primary }}
         >
-          Sản phẩm mẫu
+          Sản phẩm mẫu - {theme.name}
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data.products.map((product) => (
-            <div 
-              key={product.id}
-              className="group cursor-pointer"
-              style={{
-                borderRadius: theme.components.card.borderRadius,
-                boxShadow: theme.components.card.shadow,
-                overflow: "hidden",
-                transition: `all ${theme.animation.duration.normal} ${theme.animation.easing.default}`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = theme.components.card.hoverShadow;
-                if (theme.components.card.hoverLift) {
-                  e.currentTarget.style.transform = "translateY(-4px)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = theme.components.card.shadow;
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <div className="relative aspect-square overflow-hidden">
-                <img 
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-4">
-                <h4 
-                  className="font-medium text-sm mb-2 line-clamp-2"
-                  style={{ color: theme.colors.text.primary }}
-                >
-                  {product.name}
-                </h4>
-                <p 
-                  className="font-bold"
-                  style={{ color: theme.colors.primary }}
-                >
-                  {formatPrice(product.price)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <IndustryProductGrid 
+          industry={validIndustry}
+          products={data.products}
+          theme={theme}
+          formatPrice={formatPrice}
+        />
       </section>
 
       {/* CTA */}
