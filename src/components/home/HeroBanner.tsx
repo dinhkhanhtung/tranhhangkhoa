@@ -115,7 +115,7 @@ export default function HeroBanner() {
             >
               <Link
                 href={slides[currentSlide].href}
-                className="group inline-flex items-center gap-3 bg-white text-[var(--color-dark)] px-10 py-4 text-sm font-semibold tracking-wider hover:bg-[var(--color-primary)] hover:text-white transition-all duration-500 rounded-sm shadow-2xl hover:shadow-[#b45309]/30 hover:-translate-y-1"
+                className="group inline-flex items-center gap-3 bg-white text-[var(--color-dark)] px-10 py-4 text-sm font-semibold tracking-wider hover:bg-[var(--color-primary)] hover:text-white transition-all duration-500 rounded-sm shadow-2xl hover:shadow-[var(--color-primary)]/30 hover:-translate-y-1"
               >
                 {slides[currentSlide].cta}
                 <svg 

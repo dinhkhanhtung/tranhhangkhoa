@@ -154,7 +154,7 @@ function ProductsContent() {
                   step="100000"
                   value={priceRange[1]}
                   onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                  className="w-full accent-[#b45309]"
+                  className="w-full accent-[var(--color-primary)]"
                 />
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[#57534e]">0đ -</span>
@@ -191,7 +191,7 @@ function ProductsContent() {
             {/* Availability */}
             <FilterSection title="Tình trạng">
               <label className="flex items-center gap-2 text-sm text-[#57534e] cursor-pointer">
-                <input type="checkbox" className="accent-[#b45309]" />
+                <input type="checkbox" className="accent-[var(--color-primary)]" />
                 Còn hàng
               </label>
             </FilterSection>
