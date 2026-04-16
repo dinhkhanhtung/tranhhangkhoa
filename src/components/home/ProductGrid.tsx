@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -116,6 +116,24 @@ interface ProductCardProps {
 }
 
 function ProductCard({ product, onQuickView }: ProductCardProps) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  // Check if product is in wishlist on mount
+  useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    setIsWishlisted(wishlist.includes(product.id));
+  }, [product.id]);
+
+  const toggleWishlist = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    const newWishlist = isWishlisted
+      ? wishlist.filter((id: string) => id !== product.id)
+      : [...wishlist, product.id];
+    localStorage.setItem("wishlist", JSON.stringify(newWishlist));
+    setIsWishlisted(!isWishlisted);
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -177,14 +195,12 @@ function ProductCard({ product, onQuickView }: ProductCardProps) {
         </div>
 
         {/* Wishlist Button */}
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Add wishlist functionality
-          }}
-          className="absolute top-4 right-4 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#b45309] hover:text-white shadow-md z-20"
+        <button
+          onClick={toggleWishlist}
+          className={`absolute top-4 right-4 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#b45309] hover:text-white shadow-md z-20 press-feedback ${isWishlisted ? "bg-[#b45309] text-white opacity-100" : ""}`}
+          aria-label={isWishlisted ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
         </button>

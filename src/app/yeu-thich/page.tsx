@@ -6,30 +6,90 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
 
-// Mock wishlist items
-const mockWishlist = [
-  {
-    id: "1",
-    name: "Tranh Thêu Hoa Sen Tinh Khiết 50x70cm",
-    price: 3500000,
-    image: "https://images.unsplash.com/photo-1569091791842-7cfb64e04797?w=400&q=80",
-    category: "Tranh thêu hoa",
-  },
-  {
-    id: "2",
-    name: "Túi Xách Thêu Tay Hoa Mai Vàng",
-    price: 1200000,
+// Mock product data for wishlist items
+const productData: Record<string, { name: string; price: number; image: string; category: string }> = {
+  "1": {
+    name: "Túi thêu tay hoa sen - Thủ công cao cấp",
+    price: 2800000,
     image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80",
-    category: "Phụ kiện thêu",
+    category: "Túi thêu tay",
   },
-];
+  "2": {
+    name: "Túi xách thêu chim hạc - Phong cách Trung Hoa",
+    price: 3500000,
+    image: "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=400&q=80",
+    category: "Túi thêu tay",
+  },
+  "3": {
+    name: "Cặp tóc thêu hoa mẫu đơn - Truyền thống",
+    price: 850000,
+    image: "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=400&q=80",
+    category: "Phụ kiện",
+  },
+  "4": {
+    name: "Ví cầm tay thêu hoa lan - Tinh xảo",
+    price: 1200000,
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&q=80",
+    category: "Ví",
+  },
+  "5": {
+    name: "Túi đeo chéo thêu rồng phượng - Cổ điển",
+    price: 3200000,
+    image: "https://images.unsplash.com/photo-1549298916-f52e28b5f7b9?w=400&q=80",
+    category: "Túi thêu tay",
+  },
+  "6": {
+    name: "Cặp tóc thêu hoa cúc - Nhật Bản",
+    price: 650000,
+    image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=400&q=80",
+    category: "Phụ kiện",
+  },
+  "7": {
+    name: "Túi clutch thêu hoa đào - Xuân sang",
+    price: 2800000,
+    image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400&q=80",
+    category: "Túi thêu tay",
+  },
+  "8": {
+    name: "Balo thêu hoa sen - Thanh lịch",
+    price: 2800000,
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&q=80",
+    category: "Balo",
+  },
+};
+
+interface WishlistItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+}
 
 export default function WishlistPage() {
   const sessionData = useSession();
   const session = sessionData?.data;
   const status = sessionData?.status;
   const router = useRouter();
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+
+  // Load wishlist from localStorage
+  useEffect(() => {
+    const savedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    setWishlist(savedWishlist);
+
+    // Map wishlist IDs to product data
+    const items = savedWishlist
+      .map((id: string) => {
+        const product = productData[id];
+        return product ? { ...product, id } : null;
+      })
+      .filter(Boolean) as WishlistItem[];
+    setWishlistItems(items);
+  }, []);
 
   // Loading state
   if (status === "loading") {
@@ -93,11 +153,11 @@ export default function WishlistPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-serif text-[#1c1917]">Danh sách yêu thích</h1>
           <p className="text-sm text-[#57534e] mt-1">
-            {mockWishlist.length} sản phẩm đã lưu
+            {wishlistItems.length} sản phẩm đã lưu
           </p>
         </div>
 
-        {mockWishlist.length === 0 ? (
+        {wishlistItems.length === 0 ? (
           <div className="text-center py-12">
             <Heart size={48} className="mx-auto text-[#e7e5e4] mb-4" />
             <h3 className="text-lg font-medium text-[#1c1917] mb-2">
@@ -115,7 +175,7 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {mockWishlist.map((product) => (
+            {wishlistItems.map((product: WishlistItem) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
