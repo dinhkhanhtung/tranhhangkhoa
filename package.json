@@ -1,6 +1,7 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "industry-themes",
+  "version": "1.0.0",
+  "description": "Multi-industry website template system - 19 industries, 1 codebase",
   "private": true,
   "scripts": {
     "dev": "next dev",
