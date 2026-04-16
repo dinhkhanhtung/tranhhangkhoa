@@ -11,44 +11,98 @@ import { useWebsite } from "@/context/WebsiteContext";
 // Danh mục sản phẩm - sẽ được lọc dựa trên settings trong component
 const getNavLinks = (settings: any) => {
   return [
-    { 
-      href: "/san-pham?category=tranh-theu-hoa", 
+    {
+      href: "/san-pham?category=tranh-theu-hoa",
       label: "Tranh Thêu Hoa",
-      megaMenu: true,
-      items: [
-        { name: "Hoa Sen", href: "/san-pham?category=hoa-sen" },
-        { name: "Hoa Đào", href: "/san-pham?category=hoa-dao" },
-        { name: "Hoa Mẫu Đơn", href: "/san-pham?category=hoa-mau-don" },
-      ]
+      megaMenu: {
+        image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=80",
+        imageTitle: "Bộ Sưu Tập Hoa Sen",
+        columns: [
+          {
+            title: "Hoa Sen",
+            items: ["Hoa Sen Trắng", "Hoa Sen Hồng", "Hoa Sen Vàng"]
+          },
+          {
+            title: "Hoa Đào",
+            items: ["Hoa Đào Nhí", "Hoa Đào Cánh Đôi", "Hoa Đào Đầy"]
+          },
+          {
+            title: "Hoa Mẫu Đơn",
+            items: ["Mẫu Đơn Đỏ", "Mẫu Đơn Trắng", "Mẫu Đơn Hồng"]
+          }
+        ]
+      }
     },
-    { 
-      href: "/san-pham?category=tranh-theu-chim", 
+    {
+      href: "/san-pham?category=tranh-theu-chim",
       label: "Tranh Thêu Chim",
-      megaMenu: true,
-      items: [
-        { name: "Chim Hạc", href: "/san-pham?category=chim-hac" },
-        { name: "Chim Sẻ", href: "/san-pham?category=chim-se" },
-        { name: "Tùng Hạc", href: "/san-pham?category=tung-hac" },
-      ]
+      megaMenu: {
+        image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=80",
+        imageTitle: "Bộ Sưu Tập Chim",
+        columns: [
+          {
+            title: "Chim Hạc",
+            items: ["Hạc Đơn", "Hạc Đôi", "Hạc Bay"]
+          },
+          {
+            title: "Chim Sẻ",
+            items: ["Sẻ Đôi", "Sẻ Bầy", "Sẻ Lá"]
+          },
+          {
+            title: "Tùng Hạc",
+            items: ["Tùng Hạc Vàng", "Tùng Hạc Bạc", "Tùng Hạc Đỏ"]
+          }
+        ]
+      }
     },
-    { 
-      href: "/san-pham?category=tranh-phong-canh", 
+    {
+      href: "/san-pham?category=tranh-phong-canh",
       label: "Phong Cảnh",
-      megaMenu: true,
-      items: [
-        { name: "Sơn Thủy", href: "/san-pham?category=son-thuy" },
-        { name: "Làng Quê", href: "/san-pham?category=lang-que" },
-        { name: "Phố Cổ", href: "/san-pham?category=pho-co" },
-      ]
+      megaMenu: {
+        image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=80",
+        imageTitle: "Bộ Sưu Tập Phong Cảnh",
+        columns: [
+          {
+            title: "Sơn Thủy",
+            items: ["Thác Nước", "Dòng Sông", "Hồ Tịnh"]
+          },
+          {
+            title: "Làng Quê",
+            items: ["Nhà Làng", "Cánh Đồng", "Cây Cổ Thụ"]
+          },
+          {
+            title: "Phố Cổ",
+            items: ["Phố Hội An", "Phố Cổ Hà Nội", "Phố Sài Gòn"]
+          }
+        ]
+      }
     },
-    { 
-      href: "/san-pham?category=tranh-bieu-tuong", 
+    {
+      href: "/san-pham?category=tranh-bieu-tuong",
       label: "Biểu Tượng",
+      megaMenu: {
+        image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&q=80",
+        imageTitle: "Bộ Sưu Tập Biểu Tượng",
+        columns: [
+          {
+            title: "Phật",
+            items: ["Phật A Di Đà", "Phật Quan Âm", "Phật Thích Ca"]
+          },
+          {
+            title: "Thần Tài",
+            items: ["Thần Tài Đất", "Thần Tài Nước", "Thần Tài Lửa"]
+          },
+          {
+            title: "Long Phụng",
+            items: ["Rồng Vàng", "Phượng Hoàng", "Long Phụng"]
+          }
+        ]
+      }
     },
     { href: "/gioi-thieu", label: "Giới thiệu" },
     ...(settings.modules?.courses !== false ? [{ href: "/khoa-hoc", label: "Khóa học" }] : []),
     ...(settings.modules?.resources !== false ? [{ href: "/tai-nguyen", label: "Tài nguyên" }] : []),
-    ...(settings.modules?.blog !== false ? [{ href: "/bai-viet", label: "Blog" }] : []),
+    { href: "/lien-he", label: "Liên hệ" },
   ];
 };
 
