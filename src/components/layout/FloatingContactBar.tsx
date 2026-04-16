@@ -54,13 +54,7 @@ export default function FloatingContactBar() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 100 }}
-          transition={{ duration: 0.3 }}
-          className="fixed left-4 bottom-24 lg:left-auto lg:right-4 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 z-50 flex flex-col gap-3"
-        >
+        <div className="hidden lg:flex fixed right-6 bottom-24 z-40 flex-col gap-3">
           {/* Contact buttons */}
           <AnimatePresence>
             {isExpanded && (

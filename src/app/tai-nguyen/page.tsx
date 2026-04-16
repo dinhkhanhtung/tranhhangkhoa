@@ -34,7 +34,7 @@ const mockResources: Resource[] = [
     difficulty: "beginner",
     downloads: 1234,
     likes: 89,
-    author: "Cô Hằng Khoa",
+    author: "Nghệ nhân",
     createdAt: "2024-03-15",
   },
   {
@@ -49,7 +49,7 @@ const mockResources: Resource[] = [
     difficulty: "advanced",
     downloads: 567,
     likes: 45,
-    author: "Cô Hằng Khoa",
+    author: "Nghệ nhân",
     createdAt: "2024-03-10",
   },
   {
@@ -64,7 +64,7 @@ const mockResources: Resource[] = [
     difficulty: "intermediate",
     downloads: 2341,
     likes: 156,
-    author: "Cô Hằng Khoa",
+    author: "Nghệ nhân",
     createdAt: "2024-02-28",
   },
   {
@@ -79,7 +79,7 @@ const mockResources: Resource[] = [
     difficulty: "intermediate",
     downloads: 892,
     likes: 67,
-    author: "Cô Hằng Khoa",
+    author: "Nghệ nhân",
     createdAt: "2024-02-20",
   },
 ];
