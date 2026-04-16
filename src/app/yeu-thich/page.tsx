@@ -78,6 +78,7 @@ export default function WishlistPage() {
 
   // Load wishlist from localStorage
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const savedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
     setWishlist(savedWishlist);
 

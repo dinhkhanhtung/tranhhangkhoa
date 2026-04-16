@@ -120,6 +120,7 @@ function ProductCard({ product, onQuickView }: ProductCardProps) {
 
   // Check if product is in wishlist on mount
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
     setIsWishlisted(wishlist.includes(product.id));
   }, [product.id]);
