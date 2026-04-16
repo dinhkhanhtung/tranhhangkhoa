@@ -129,6 +129,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -142,6 +143,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
 
   const updateSettings = (newSettings: WebsiteSettings) => {
     setSettings(newSettings);
+    if (typeof window === "undefined") return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
   };
 
