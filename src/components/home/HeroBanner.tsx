@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const slides = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/b/b7/Commissioned_embroidery_by_V%C5%A9_Ng%E1%BB%8Dc_Ho%C3%A1nh%2C_Chief_of_L%E1%BA%A1ng_S%C6%A1n_Province_03.jpg",
     title: "Nghệ Thuật Thêu Tay",
     subtitle: "Truyền thống Việt Nam",
     description: "Mỗi đường kim mũi chỉ đều mang theo tâm huyết và kỹ nghệ được truyền lại qua nhiều thế hệ.",
@@ -18,7 +18,7 @@ const slides = [
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1615184697985-c9bde1b07da7?w=1920&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Commissioned_embroidery_by_V%C5%A9_Ng%E1%BB%8Dc_Ho%C3%A1nh%2C_Chief_of_L%E1%BA%A1ng_S%C6%A1n_Province_02.jpg",
     title: "Khóa Học Thêu Online",
     subtitle: "Học từ cơ bản đến nâng cao",
     description: "Trải nghiệm nghệ thuật thêu tay với các khóa học được thiết kế bài bản.",
@@ -27,7 +27,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-15992693474448-2cb9d6c8b4f5?w=1920&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Silk_embroidery_with_Tree_of_Life_motif_from_Vietnam.JPG",
     title: "Phụ Kiện Thêu Cao Cấp",
     subtitle: "Khung, chỉ, kim chất lượng",
     description: "Tất cả dụng cụ bạn cần để bắt đầu hành trình thêu tay.",
