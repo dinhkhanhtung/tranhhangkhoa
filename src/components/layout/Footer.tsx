@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { TiktokIcon, TwitterIcon } from "@/components/icons";
 import { useWebsite } from "@/context/WebsiteContext";
+import { useState, useEffect } from "react";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, limit } from "firebase/firestore";
 
 const footerLinks = {
   shop: [
@@ -13,12 +16,6 @@ const footerLinks = {
     { name: "Mẫu Thêu Miễn Phí", href: "/tai-nguyen" },
     { name: "Khung Tranh", href: "/phu-kien" },
   ],
-  support: [
-    { name: "Hướng Dẫn Mua Hàng", href: "#" },
-    { name: "Chính Sách Đổi Trả", href: "#" },
-    { name: "Vận Chuyển & Giao Hàng", href: "#" },
-    { name: "Câu Hỏi Thường Gặp", href: "#" },
-  ],
   company: [
     { name: "Về Chúng Tôi", href: "/gioi-thieu" },
     { name: "Câu Chuyện Thương Hiệu", href: "/gioi-thieu" },
@@ -27,8 +24,63 @@ const footerLinks = {
   ],
 };
 
+// Default support links (fallback if no posts)
+const defaultSupportLinks = [
+  { name: "Hướng Dẫn Mua Hàng", href: "#" },
+  { name: "Chính Sách Đổi Trả", href: "#" },
+  { name: "Vận Chuyển & Giao Hàng", href: "#" },
+  { name: "Câu Hỏi Thường Gặp", href: "#" },
+];
+
+interface SupportPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+}
+
 export default function Footer() {
   const { settings } = useWebsite();
+  const [supportLinks, setSupportLinks] = useState<{name: string, href: string}[]>(defaultSupportLinks);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch support posts from Firebase
+  useEffect(() => {
+    const fetchSupportPosts = async () => {
+      if (!db) return;
+      
+      try {
+        // Query posts with category "Hỗ trợ" or "Hướng dẫn"
+        const postsRef = collection(db, "posts");
+        const q = query(
+          postsRef,
+          where("category", "in", ["Hỗ trợ", "Hướng dẫn", "Chính sách"]),
+          where("status", "==", "published"),
+          limit(6)
+        );
+        
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+          const posts = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              name: data.title,
+              href: `/bai-viet/${data.slug || doc.id}`,
+            };
+          });
+          setSupportLinks(posts);
+        }
+      } catch (error) {
+        console.error("Error fetching support posts:", error);
+        // Keep default links on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSupportPosts();
+  }, []);
 
   return (
     <footer className="bg-[var(--color-dark)] text-white">
@@ -99,13 +151,13 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Support Links - Dynamic from Firebase */}
           <div>
             <h4 className="mb-6 text-xs font-bold tracking-[0.2em] uppercase text-white/90">
               Hỗ Trợ
             </h4>
             <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
+              {supportLinks.map((link: {name: string, href: string}) => (
                 <li key={link.name}>
                   <Link href={link.href} className="text-sm text-white/50 hover:text-[var(--color-primary)] transition-colors">
                     {link.name}
