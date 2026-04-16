@@ -43,10 +43,8 @@ export default function FloatingContactBar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show after scrolling 300px
       setIsVisible(window.scrollY > 300);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -55,7 +53,6 @@ export default function FloatingContactBar() {
     <AnimatePresence>
       {isVisible && (
         <div className="hidden lg:flex fixed right-6 bottom-24 z-40 flex-col gap-3">
-          {/* Contact buttons */}
           <AnimatePresence>
             {isExpanded && (
               <motion.div
@@ -94,7 +91,6 @@ export default function FloatingContactBar() {
             )}
           </AnimatePresence>
 
-          {/* Main toggle button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -106,9 +102,8 @@ export default function FloatingContactBar() {
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
             )}
           </motion.button>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
 }
-
