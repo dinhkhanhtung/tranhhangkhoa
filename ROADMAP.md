@@ -213,12 +213,13 @@
   - [x] Navigation structure
   - [x] Product card style
 
-#### GIAI ĐOẠN 5.1.2: Update WebsiteContext (1 ngày)
-- [ ] Thêm field `industry` vào WebsiteSettings interface
-- [ ] Thêm `customColors` override
-- [ ] Thêm `layoutStyle` (rounded/square/modern)
-- [ ] Tạo theme resolver function
-- [ ] Update localStorage persistence
+#### GIAI ĐOẠN 5.1.2: Update WebsiteContext (1 ngày) ✅ ĐÃ HOÀN THÀNH
+- [x] Thêm field `industry` vào WebsiteSettings interface
+- [x] Thêm `customColors` override
+- [x] Thêm `layoutStyle` (rounded/square/modern)
+- [x] Tạo theme resolver function (useMemo)
+- [x] Update localStorage persistence
+- [x] Thêm `currentTheme` và `getThemeValue` vào context
 
 #### GIAI ĐOẠN 5.1.3: Update Components (2 ngày)
 **Tuần tự để tránh lỗi:**
