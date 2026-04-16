@@ -60,3 +60,4 @@ export function ZaloIcon({ size = 24, className = "" }: IconProps) {
     </svg>
   );
 }
+

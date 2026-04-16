@@ -241,3 +241,4 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
     </AnimatePresence>
   );
 }
+
